@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FeelsFM</title>
+    <link rel="stylesheet" href="style.css">
+    <script defer src="https://cdn.jsdelivr.net/npm/face-api.js@0.22.2/dist/face-api.min.js"></script>
+    <script defer src="script.js"></script>
+</head>
+<body>
+    <noscript>
+    Please enable JavaScript to use FeelsFM.
+    </noscript>
+    <div class="container">
+        <header>
+            <h1>FeelsFM</h1>
+            <p>Your emotions, Your song.</p>
+        </header>
+        <div class="camera-box">
+            <video id="video" width="600" height="450" autoplay muted></video>
+            <canvas id="overlay"></canvas>
+        </div>
+        <div class="result-box">
+            <h2>Current Vibe: <span id="emotion">Thinking...</span></h2>
+            <div id="song-recommendation">
+                Waiting for a face...
+            </div>
+            <button id="start-btn">Start Camera</button>
+        </div>
+    </div>
+</body>
+</html>
