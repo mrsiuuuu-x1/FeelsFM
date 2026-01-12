@@ -33,7 +33,7 @@ header h1 {
     overflow: hidden;
     width: 100%;
     max-width: 600px;
-    aspect-ratio: 12 / 5;
+    aspect-ratio: 4 / 3;
     height: auto;
     background: black;
 }
