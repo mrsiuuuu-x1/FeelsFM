@@ -65,33 +65,36 @@ function recommendMusic(emotion) {
     let title = "";
     switch (emotion) {
         case "happy":
-            videoId = "ZbZSe6N_BXs"
-            title = "Vibe: Happy | Playing: 'Happy'";
+            videoId = "C2LCNUNz784";
+            title = "Vibe: Happy | Playing: 'Escape'";
             break;
             case "sad":
-                videoId = "hLQl3WQQoQ0"
-                title = "Vibe: Sad | Playing: 'Someone like You'";
+                videoId = "jzxLkrpuxf8";
+                title = "Vibe: Sad | Playing: 'Love Costs'";
                 break;
             case "surprised":
-                videoId = "fJ9rUzIMcZQ";
-                title = "Vibe: Surprised | Playing: 'Bohemian Rhapsody'";
+                videoId = "GAVjc7N2I6E";
+                title = "Vibe: Surprised | Playing: 'wiv'";
                 break;
             case "neutral":
-                videoId = "jfKfPfyJRdk";
-                title = "Vibe: Chill | Playing: 'Lofi Beats'";
+                videoId = "474-xwYQLrs";
+                title = "Vibe: Chill | Playing: 'The World Retreats'";
                 break;
             case "fearful":
-                videoId = "4fandeDfaPk";
-                title = "Vibe: Fearful | Playing: 'Spooky Ambience'";
+                videoId = "-zvQoPyY2XE";
+                title = "Vibe: Fearful | Playing: 'Dark Tension'";
                 break;
             case "disgusted":
-                videoId = "3tmd-ClpJxA";
-                title = "Vibe: Disgusted | Playing: 'Shake it Off'";
+                videoId = "0EJftQteGzo";
+                title = "Vibe: Disgusted | Playing: 'Disgust'";
                 break;
+                case "angry":
+                    videoId = "fdwxXf14qxU";
+                    title = "Vibe: Angry | Playing: Heavy Metal Rock"
             default:
                 return;
     }
     document.getElementById("song-title").innerText = title;
     const player = document.getElementById("youtube-player");
-    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1&origin=http://127.0.0.1:5500`;
 }
