@@ -57,20 +57,41 @@ video.addEventListener('play', () => {
     }, 200);
 });
 
+let lastEmotion = "";
 function recommendMusic(emotion) {
-    let song = "";
-    if (emotion === "happy") {
-        song = "'Happy' by Pharrell Williams";
-    } else if (emotion === "sad") {
-        song = "'Someone Like You' by Adele";
-    } else if (emotion === "angry") {
-        song = "'Break Stuff' by Limp Bizkit";
-    } else if (emotion === "surprised") {
-        song = "'Bohemian Rhapsody' by Queen";
-    } else if (emotion === "neutral") {
-        song = "lofi hip hop beats";
-    } else {
-        song = "Exploring your vibe...";
+    if (emotion === lastEmotion) return;
+    lastEmotion = emotion;
+    let videoId = "";
+    let title = "";
+    switch (emotion) {
+        case "happy":
+            videoId = "ZbZSe6N_BXs"
+            title = "Vibe: Happy | Playing: 'Happy'";
+            break;
+            case "sad":
+                videoId = "hLQl3WQQoQ0"
+                title = "Vibe: Sad | Playing: 'Someone like You'";
+                break;
+            case "surprised":
+                videoId = "fJ9rUzIMcZQ";
+                title = "Vibe: Surprised | Playing: 'Bohemian Rhapsody'";
+                break;
+            case "neutral":
+                videoId = "jfKfPfyJRdk";
+                title = "Vibe: Chill | Playing: 'Lofi Beats'";
+                break;
+            case "fearful":
+                videoId = "4fandeDfaPk";
+                title = "Vibe: Fearful | Playing: 'Spooky Ambience'";
+                break;
+            case "disgusted":
+                videoId = "3tmd-ClpJxA";
+                title = "Vibe: Disgusted | Playing: 'Shake it Off'";
+                break;
+            default:
+                return;
     }
-    songRecommendation.innerText = song;
+    document.getElementById("song-title").innerText = title;
+    const player = document.getElementById("youtube-player");
+    player.src = `https://www.youtube.com/embed/${videoId}?autoplay=1`;
 }
