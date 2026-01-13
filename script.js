@@ -2,8 +2,9 @@ const video = document.getElementById('video');
 const startBtn = document.getElementById('start-btn');
 const emotionText = document.getElementById('emotion');
 const songRecommendation = document.getElementById('song-recommendation');
-let lastSongId = "";
 let cameraOn = false;
+let isScanning = false;
+
 let currentEmotion = "";
 let lastEmotion = "";
 let emotionTimer = 0;
@@ -51,24 +52,37 @@ Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
     faceapi.nets.faceExpressionNet.loadFromUri('./models')
 ]).then(enableButton);
+
 function enableButton() {
     startBtn.innerText = "Start Camera";
     startBtn.disabled = false;
     console.log("Models Loaded");
 }
-startBtn.addEventListener('click',startVideo);
+// button click handler
+startBtn.addEventListener('click', () => {
+    if (!cameraOn) {
+        // starting camera for the first time
+        startVideo();
+        isScanning = true;
+        startBtn.innerText = "Scanning...(Hold Your Face)";
+    } else {
+        // if camera already on then restarting
+        isScanning = true;
+        startBtn.innerText = "Scanning...(Hold Your Face)";
+        emotionText.innerText = "Analyzing...";
+        video.play();        // restarting camera if it was stopped
+    }
+});
+
 function startVideo() {
-    if (cameraOn) return;
     navigator.mediaDevices.getUserMedia({ video: true })
         .then(stream => {
             video.srcObject = stream;
-            startBtn.innerText = "Camera On";
             cameraOn = true;
         })
-        .catch(err => {
-            console.error("Error accessing webcam:", err);
-        });
+        .catch(err => console.error("Error accessing webcam:", err));
 }
+// main loop (#main section)
 video.addEventListener('play', () => {
     let canvas = document.getElementById('face-canvas');
     if (!canvas) {
@@ -79,6 +93,9 @@ video.addEventListener('play', () => {
     const displaySize = { width: video.videoWidth,height: video.videoHeight };
     faceapi.matchDimensions(canvas,displaySize);
     setInterval(async () => {
+        // stopping if not scanning
+        if (!isScanning) return;
+
         const detections = await faceapi
             .detectAllFaces(video,new faceapi.TinyFaceDetectorOptions())
             .withFaceExpressions();
@@ -94,19 +111,22 @@ video.addEventListener('play', () => {
             const highestEmotion = Object.keys(expressions).reduce((a,b) =>
                 expressions[a] > expressions[b] ? a : b
             );
+            // checking if stable or not
             if (highestEmotion === lastEmotion) {
                 emotionTimer++;
             } else {
                 emotionTimer = 0;
             }
             lastEmotion = highestEmotion;
+            // LOCKIN LOGIC
+
             if (emotionTimer > STABILITY_THRESHOLD) {
-                if (highestEmotion !== currentEmotion) {
-                    currentEmotion = highestEmotion;
-                    emotionText.innerText = currentEmotion.toUpperCase();
-                    recommendMusic(currentEmotion);
-                }
-                emotionTimer = 0;
+               currentEmotion = highestEmotion;
+               emotionText.innerText = `MOOD: ${currentEmotion.toUpperCase()}`;
+               recommendMusic(currentEmotion);
+               isScanning = false;
+               startBtn.innerText = "Scan Mood Again!";
+               emotionTimer = 0;
             }
         } else {
             emotionText.innerText = "Looking for face...";
@@ -116,12 +136,9 @@ video.addEventListener('play', () => {
 
 function recommendMusic(emotion) {
     const songList = musicLibrary[emotion] || musicLibrary.neutral;
-    let selectedSong;
-    do {
-        selectedSong = songList[Math.floor(Math.random() * songList.length)];
-    } while (selectedSong.id === lastSongId && songList.length > 1);
-    lastSongId = selectedSong.id;
-    document.getElementById("song-title").innerText = selectedSong.title;
+    const randomIndex = Math.floor(Math.random()*songList.length);
+    const selectedSong = songList[randomIndex];
+    document.getElementById("song-title").innerText = `${selectedSong.title}`;
     const player = document.getElementById("youtube-player");
-    player.src = `https://www.youtube.com/embed/${selectedSong.id}?autoplay=1`;
+    player.src = `https://www.youtube.com/embed/${selectedSong.id}?autoplay=1&origin=http://127.0.0.1:5500`;
 }
