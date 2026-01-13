@@ -18,13 +18,27 @@ if (loginBtn) {
 async function checkUser() {
     const { data: { user } } = await supabaseClient.auth.getUser();
     if (user) {
-        console.log("User is logged in:", user.email);
-        if (window.location.pathname.includes('login.html')) {
+        // user logged in
+        console.log("User found:", user.email);
+        // if not on dashboard, redirect user there
+        if (!window.location.pathname.includes('dashboard.html')) {
             window.location.href = 'dashboard.html';
         }
-    } else {
-        console.log("No user is logged in.");
-    }
+        // if on dashboard, show email
+        const emailDisplay = document.getElementById('user-email');
+        if (emailDisplay) {
+            emailDisplay.innerText = user.email;
+        }
+    } 
+}
+
+// adding logout logic
+const logoutBtn = document.getElementById('logout-btn');
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', async () => {
+        await supabaseClient.auth.signOut();
+        window.location.href = 'index.html';
+    });
 }
 
 checkUser();
