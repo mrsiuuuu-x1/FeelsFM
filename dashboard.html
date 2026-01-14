@@ -52,8 +52,8 @@
         <div class="workstation">
             <div class="camera-box" style="display: flex; flex-direction: column; align-items: center; min-width: 420px;">
     
-                <div id="video-wrapper" style="position: relative; width: 400px; height: 300px; background: #000; border-radius: 10px; overflow: hidden;">
-                    <video id="video" width="400" height="300" autoplay muted playsinline style="object-fit: cover;"></video>
+                <div id="video-wrapper" style="position: relative; width: 640px; height: 480px; background: black; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0,5);">
+                    <video id="video" width="640" height="480" autoplay muted playsinline style="object-fit: fill;"></video>
                 </div>
     
                 <h3 id="emotion" style="color: #1DB954; margin: 15px 0; font-size: 1.2rem;">READY TO SCAN</h3>
@@ -64,8 +64,15 @@
             </div>
 
             <div class="player-box" style="min-width: 420px;">
-                <h2 id="song-title" style="margin-bottom: 15px;">Your Vibe Music</h2>
-                <div id="youtube-player" style="width: 100%; min-height: 250px; background: #000; border-radius: 10px;"></div>
+                    <h2 id="song-title" style="margin-bottom: 15px;">Your Vibe Music</h2>
+                    <iframe id="sc-player"
+                        width="100%"
+                        height="166"
+                        scrolling="no"
+                        frameborder="no"
+                        allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+                        src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/playlists/1136423377&color=%231db954&auto_play=false&hide_related=false&show_comments=true&show_user=true&show_reposts=false&show_teaser=true">
+                    </iframe>
             </div>
         </div>
 

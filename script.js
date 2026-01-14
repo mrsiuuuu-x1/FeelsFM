@@ -9,36 +9,34 @@ let lastEmotion = "";
 let emotionTimer = 0;
 const STABILITY_THRESHOLD = 15; 
 
-const musicLibrary = {
-    neutral: [
-        { id: "474-xwYQLrs", title: "Chill Vibe: The World Retreats" },
-        { id: "jfKfPfyJRdk", title: "Chill Vibe: Lofi Girl Radio" }
-    ],
-    happy: [
-        { id: "C2LCNUNz784", title: "Happy(Vibe): Escape" },
-        { id: "IIrCDAV3EgI", title: "Happy(Vibe): Tobu - CandyLand" }
-    ],
-    sad: [
-        { id: "jzxLkrpuxf8", title: "Sad(Vibe): Love Costs" },
-        { id: "tCRJ63B5f_8", title: "Sad(Vibe): Sad Piano Music" }
-    ],
-    angry: [
-        { id: "fdwxXf14qxU", title: "Angry(Vibe): Heavy Metal Rock" },
-        { id: "WxnN05vOuSM", title: "Angry(Vibe): Aggressive Metal" }
-    ],
-    surprised: [
-        { id: "GAVjc7N2I6E", title: "Surprised(Vibe): wiv" },
-        { id: "2ZIpFytCSVc", title: "Surprised(Vibe): Dramatic Chipmunk" }
-    ],
-    fearful: [
-        { id: "-zvQoPyY2XE", title: "Fearful(Vibe): Dark Tension" },
-        { id: "sYp9p8gGj9c", title: "Fearful(Vibe): Creepy Forest" }
-    ],
-    disgusted: [
-        { id: "0EJftQteGzo", title: "Disgusted(Vibe): Disgust" },
-        { id: "rAbP5REW_Fc", title: "Disgusted(Vibe): Nope Sound Effect" }
-    ]
+// soundcloud music logic
+const moodPlaylists = {
+    happy: "https://soundcloud.com/shon-selects-tracks/sets/indie-rock-and-pop-ultra-playlist",
+    sad: "https://soundcloud.com/kari1654/sets/sad-songs",
+    angry: "https://soundcloud.com/ckfeine/sets/brazilian-phonk",
+    neutral: "https://soundcloud.com/woozlesband/sets/chillhop-radio-jazz-lofi-hip",
+    surprised: "https://soundcloud.com/maria-gomez-813734303/sets/the-crumbles-of-my-mind",
+    fearful: "https://soundcloud.com/viktor-402522949/sets/horror-playlist",
+    disgusted: "https://soundcloud.com/user-656191040/sets/feel-disgusted-by-everything"
 };
+ let currentMoodPlaying = "";
+ 
+ function playMusic(mood) {
+    const playerFrame = document.getElementById('sc-player');
+    if (!playerFrame) return;
+
+    const moodKey = mood.toLowerCase();
+    const playlistUrl = moodPlaylists[moodKey] || moodPlaylists['neutral'];
+
+    // randomizer logic
+    const randomTrack = Math.floor(Math.random() * 5);
+    console.log(`Switching to: ${moodKey} (Starting at track ${randomTrack})`);
+
+    const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(playlistUrl)}&color=%231db954&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&start_track=${randomTrack}`;
+    playerFrame.src = embedUrl;
+    currentMoodPlaying = moodKey;
+    document.getElementById('song-title').innerText = `Playing: ${mood.toUpperCase()} Vibes`;
+ }
 
 // --- Face API Models ---
 Promise.all([
@@ -64,12 +62,27 @@ startBtn.addEventListener('click', () => {
 });
 
 function startVideo() {
-    navigator.mediaDevices.getUserMedia({ video: true })
-        .then(stream => {
-            video.srcObject = stream;
-            cameraOn = true;
-        })
-        .catch(err => console.error("Error accessing webcam:", err));
+    navigator.mediaDevices.getUserMedia({ 
+        video: {
+            width: 640,
+            height: 480,
+        }
+    })
+    .then(stream => {
+        video.srcObject = stream;
+        cameraOn = true;
+    })
+    .catch(err => console.error("Error accessing webcam:", err));
+}
+
+function stopCamera() {
+    if (!video.srcObject) return;
+
+    video.srcObject.getTracks().forEach(track => track.stop());
+    video.srcObject = null;
+    cameraOn = false;
+
+    console.log("Camera stopped");
 }
 
 // --- Main AI Loop ---
@@ -86,8 +99,14 @@ video.addEventListener('play', () => {
         wrapper.append(canvas);
     }
 
-    const displaySize = { width: video.width, height: video.height };
+    const displaySize = { 
+        width: video.width, 
+        height: video.height 
+    };
+
     faceapi.matchDimensions(canvas, displaySize);
+    canvas.width = video.videoWidth;
+    canvas.height = video.videoHeight;
 
     setInterval(async () => {
         if (!isScanning) return; 
@@ -121,7 +140,7 @@ video.addEventListener('play', () => {
                 emotionText.innerText = `MOOD: ${currentEmotion.toUpperCase()}`;
                 
                 // 1. Play Music FIRST (Updates UI immediately)
-                recommendMusic(currentEmotion);
+                playMusic(currentEmotion);
                 
                 // 2. Wait a tiny bit for the UI to settle, then Save
                 const intensity = expressions[highestEmotion];
@@ -134,22 +153,15 @@ video.addEventListener('play', () => {
                 isScanning = false;
                 startBtn.innerText = "Scan Mood Again!";
                 emotionTimer = 0;
+                
+                stopCamera();
             }
         }
     }, 100);
 });
 
 // --- Simple Music Player ---
-function recommendMusic(emotion) {
-    const songList = musicLibrary[emotion] || musicLibrary.neutral;
-    const randomIndex = Math.floor(Math.random() * songList.length);
-    const selectedSong = songList[randomIndex];
 
-    document.getElementById("song-title").innerText = `${selectedSong.title}`;
-    
-    const iframe = document.getElementById("youtube-player");
-    iframe.innerHTML = `<iframe width="100%" height="250" src="https://www.youtube.com/embed/${selectedSong.id}?autoplay=1" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen style="border-radius: 10px;"></iframe>`;
-}
 
 // --- ROBUST DATABASE SAVER (Offline Safe) ---
 async function saveMoodToDatabase(mood, intensity, song) {
