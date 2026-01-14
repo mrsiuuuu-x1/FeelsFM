@@ -200,18 +200,91 @@ function addToHistoryList(mood, song, dateObj) {
     list.innerHTML = newItem + list.innerHTML;
 }
 
-// --- Initial Loader ---
+// initial loader
 async function loadMoodHistory() {
+    console.log("Loading History...");
     try {
         const { data: { user } } = await supabaseClient.auth.getUser();
         if (!user) return;
-        const { data } = await supabaseClient.from('mood_history').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(5);
+
+        const { data, error } = await supabaseClient
+            .from('mood_history')
+            .select('*')
+            .eq('user_id', user.id)
+            .order('created_at', { ascending: false })
+            .limit(10);
+
+        if (error) throw error; // Stop if DB error
+
         if (data && data.length > 0) {
-            document.getElementById('mood-list').innerHTML = ""; // Clear list
+            console.log("✅ Found", data.length, "moods. Drawing chart...");
+            document.getElementById('mood-list').innerHTML = ""; 
             data.forEach(item => addToHistoryList(item.mood, item.song_name, new Date(item.created_at)));
+            
+            // draw the chart now
+            updateChart(data); 
+        } else {
+            console.log("No history found yet.");
         }
     } catch (err) {
-        console.log("Could not load history (Offline/Error).");
+        console.error("CRITICAL CHART ERROR:", err); 
     }
+}
+
+// chart logic
+let moodChartInstance = null;
+
+function updateChart(data) {
+    // checking whether the library loaded or not
+    if (typeof Chart === 'undefined') {
+        console.error("ERROR: Chart.js library is missing! Check your HTML <head>.");
+        return; 
+    }
+
+    // checking if the canvas exist or not
+    const canvas = document.getElementById('moodChart');
+    if (!canvas) {
+        console.error("ERROR: <canvas id='moodChart'> not found in HTML.");
+        return;
+    }
+
+    const ctx = canvas.getContext('2d');
+
+    // preparing data
+    const chartData = [...data].reverse();
+    const labels = chartData.map(item => new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const intensities = chartData.map(item => item.intensity);
+
+    // resetting old chart
+    if (moodChartInstance) {
+        moodChartInstance.destroy();
+    }
+
+    // drawing new chart
+    moodChartInstance = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: 'Vibe Intensity',
+                data: intensities,
+                borderColor: '#1DB954',
+                backgroundColor: 'rgba(29, 185, 84, 0.2)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: { beginAtZero: true, max: 1.0, grid: { color: '#333' } },
+                x: { display: false }
+            },
+            plugins: { legend: { display: false } }
+        }
+    });
+    console.log("Chart drawn successfully!");
 }
 loadMoodHistory();
