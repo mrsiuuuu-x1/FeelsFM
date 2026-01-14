@@ -235,32 +235,16 @@ async function loadMoodHistory() {
 let moodChartInstance = null;
 
 function updateChart(data) {
-    // checking whether the library loaded or not
-    if (typeof Chart === 'undefined') {
-        console.error("ERROR: Chart.js library is missing! Check your HTML <head>.");
-        return; 
-    }
+    if (typeof Chart === 'undefined' || !document.getElementById('moodChart')) return;
 
-    // checking if the canvas exist or not
-    const canvas = document.getElementById('moodChart');
-    if (!canvas) {
-        console.error("ERROR: <canvas id='moodChart'> not found in HTML.");
-        return;
-    }
-
-    const ctx = canvas.getContext('2d');
-
-    // preparing data
+    const ctx = document.getElementById('moodChart').getContext('2d');
     const chartData = [...data].reverse();
     const labels = chartData.map(item => new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
     const intensities = chartData.map(item => item.intensity);
+    const moodNames = chartData.map(item => item.mood);
 
-    // resetting old chart
-    if (moodChartInstance) {
-        moodChartInstance.destroy();
-    }
+    if (moodChartInstance) moodChartInstance.destroy();
 
-    // drawing new chart
     moodChartInstance = new Chart(ctx, {
         type: 'line',
         data: {
@@ -269,20 +253,59 @@ function updateChart(data) {
                 label: 'Vibe Intensity',
                 data: intensities,
                 borderColor: '#1DB954',
-                backgroundColor: 'rgba(29, 185, 84, 0.2)',
-                borderWidth: 2,
+                backgroundColor: (context) => {
+                    const ctx = context.chart.ctx;
+                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+                    gradient.addColorStop(0, 'rgba(29, 185, 84, 0.5)');
+                    gradient.addColorStop(1, 'rgba(29, 185, 84, 0.0)');
+                    return gradient;
+                },
+                borderWidth: 3,
                 tension: 0.4,
-                fill: true
+                fill: true,
+                pointBackgroundColor: '#121212',
+                pointBorderColor: '#1DB954',
+                pointBorderWidth: 2,
+                pointRadius: 4,
+                pointHoverRadius: 7
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
             scales: {
-                y: { beginAtZero: true, max: 1.0, grid: { color: '#333' } },
+                y: { 
+                    beginAtZero: true, 
+                    max: 1.0, 
+                    grid: { color: 'rgba(255,255,255,0.05)' },
+                    ticks: { color: '#888' } 
+                },
                 x: { display: false }
             },
-            plugins: { legend: { display: false } }
+            plugins: { 
+                legend: { display: false },
+                tooltip: {
+                    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                    titleColor: '#fff',
+                    bodyColor: '#1DB954',
+                    borderColor: '#1DB954',
+                    borderWidth: 1,
+                    cornerRadius: 8,
+                    padding: 12,
+                    displayColors: false,
+                    callbacks: {
+                        label: function(context) {
+                            const index = context.dataIndex;
+                            const mood = moodNames[index];
+                            const percentage = (context.raw * 100).toFixed(0);
+                            return `${mood.toUpperCase()}: ${percentage}%`;
+                        },
+                        title: function(context) {
+                            return context[0].label;
+                        }
+                    }
+                }
+            }
         }
     });
     console.log("Chart drawn successfully!");
