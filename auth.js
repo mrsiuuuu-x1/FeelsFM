@@ -42,3 +42,22 @@ if (logoutBtn) {
 }
 
 checkUser();
+
+// connecting face-scanner with database
+async function saveMoodToDatabase(detectedMood,moodIntensity) {
+    const { data: {user} } = await supabaseClient.auth.getUser();
+    if (!user) return;
+    const {data,error} = await supabaseClient.from('mood_history').insert([
+        {
+            user_id: user.id,
+            mood: detectedMood,
+            intensity: moodIntensity,
+            song_name: "Youtube Guest Track"
+        }
+    ]);
+    if (error) {
+        console.log("Database Error:", error.message);
+    } else {
+        console.log("Mood saved to history")
+    }
+}
