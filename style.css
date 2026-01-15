@@ -149,4 +149,5 @@ button:active {
 .player-box {
     padding: 0 !important;
     overflow: hidden;
+    align-self: flex-start;
 }
