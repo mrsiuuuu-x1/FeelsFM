@@ -262,64 +262,85 @@ function updateChart(data) {
         data: {
             labels: labels,
             datasets: [{
-                label: 'Vibe Intensity',
+                label: 'Intensity',
                 data: intensities,
-                borderColor: '#1DB954',
-                backgroundColor: (context) => {
-                    const ctx = context.chart.ctx;
-                    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-                    gradient.addColorStop(0, 'rgba(29, 185, 84, 0.5)');
-                    gradient.addColorStop(1, 'rgba(29, 185, 84, 0.0)');
-                    return gradient;
-                },
+                borderColor: '#000000',
                 borderWidth: 3,
-                tension: 0.4,
-                fill: true,
-                pointBackgroundColor: '#121212',
-                pointBorderColor: '#1DB954',
-                pointBorderWidth: 2,
-                pointRadius: 4,
-                pointHoverRadius: 7
+                tension: 0,
+                stepped: true,
+                fill: false,
+                pointBackgroundColor: '#a3ffac',
+                pointBorderColor: '#000',
+                pointBorderWidth: 3,
+                pointRadius: 6,
+                pointHoverRadius: 8,
+                pointStyle: 'rect',
+                clip: false
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            layout: {
+                padding: {
+                    top: 10,
+                    left: 10,
+                    right: 10
+                }
+            },
             scales: {
                 y: { 
                     beginAtZero: true, 
                     max: 1.0, 
-                    grid: { color: 'rgba(255,255,255,0.05)' },
-                    ticks: { color: '#888' } 
+                    grid: { 
+                        color: '#e0e0e0',
+                        lineWidth: 2,
+                        tickLength: 0
+                    },
+                    ticks: { 
+                        color: '#000',
+                        font: { family: "'Courier New', monospace", weight: 'bold' },
+                        stepSize: 0.2,
+                        autoSkip: false,
+                        includeBounds: true,
+                        padding: 15
+                    },
+                    border: { display: false }
                 },
-                x: { display: false }
+                x: { 
+                    grid: { display: false },
+                    offset: true,
+                    ticks: { 
+                        color: '#000',
+                        font: { family: "'Courier New', monospace", size: 10 } 
+                    }
+                }
             },
             plugins: { 
                 legend: { display: false },
                 tooltip: {
-                    backgroundColor: 'rgba(20, 20, 20, 0.9)',
+                    backgroundColor: '#000',
                     titleColor: '#fff',
-                    bodyColor: '#1DB954',
-                    borderColor: '#1DB954',
-                    borderWidth: 1,
-                    cornerRadius: 8,
-                    padding: 12,
+                    bodyColor: '#a3ffac',
+                    titleFont: { family: "'Courier New', monospace" },
+                    bodyFont: { family: "'Courier New', monospace", weight: 'bold' },
+                    borderColor: '#000',
+                    borderWidth: 0,
+                    cornerRadius: 0,
+                    padding: 10,
                     displayColors: false,
                     callbacks: {
                         label: function(context) {
                             const index = context.dataIndex;
                             const mood = moodNames[index];
                             const percentage = (context.raw * 100).toFixed(0);
-                            return `${mood.toUpperCase()}: ${percentage}%`;
-                        },
-                        title: function(context) {
-                            return context[0].label;
+                            return `> ${mood.toUpperCase()} [${percentage}%]`;
                         }
                     }
                 }
             }
         }
     });
-    console.log("Chart drawn successfully!");
+    console.log("Chart drawn (Neo-Brutalist Style)!");
 }
 loadMoodHistory();
