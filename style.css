@@ -145,3 +145,8 @@ button:active {
     color: black !important;
     font-family: 'Courier New', monospace;
 }
+
+.player-box {
+    padding: 0 !important;
+    overflow: hidden;
+}

@@ -9,33 +9,25 @@ let lastEmotion = "";
 let emotionTimer = 0;
 const STABILITY_THRESHOLD = 15; 
 
-// soundcloud music logic
-const moodPlaylists = {
-    happy: "https://soundcloud.com/shon-selects-tracks/sets/indie-rock-and-pop-ultra-playlist",
-    sad: "https://soundcloud.com/kari1654/sets/sad-songs",
-    angry: "https://soundcloud.com/ckfeine/sets/brazilian-phonk",
-    neutral: "https://soundcloud.com/woozlesband/sets/chillhop-radio-jazz-lofi-hip",
-    surprised: "https://soundcloud.com/maria-gomez-813734303/sets/the-crumbles-of-my-mind",
-    fearful: "https://soundcloud.com/viktor-402522949/sets/horror-playlist",
-    disgusted: "https://soundcloud.com/user-656191040/sets/feel-disgusted-by-everything"
-};
- let currentMoodPlaying = "";
+ let currentMoodPlaying = null;
  
  function playMusic(mood) {
-    const playerFrame = document.getElementById('sc-player');
-    if (!playerFrame) return;
+    if (!mood || mood === currentMoodPlaying) return;
 
-    const moodKey = mood.toLowerCase();
-    const playlistUrl = moodPlaylists[moodKey] || moodPlaylists['neutral'];
+    currentMoodPlaying = mood;
+    const player = document.getElementById('music-player');
+    const playlists = {
+        'happy': '1479458365',
+        'sad': '1911533742',
+        'angry': '2098157264',
+        'surprised': '1282495565',
+        'fearful': '2328226062',
+        'disgusted': '5243326682',
+        'neutral':'3110429622'
+    }
+    const playlistId = playlists[mood] || playlists['neutral'];
 
-    // randomizer logic
-    const randomTrack = Math.floor(Math.random() * 5);
-    console.log(`Switching to: ${moodKey} (Starting at track ${randomTrack})`);
-
-    const embedUrl = `https://w.soundcloud.com/player/?url=${encodeURIComponent(playlistUrl)}&color=%231db954&auto_play=true&hide_related=false&show_comments=false&show_user=true&show_reposts=false&show_teaser=true&start_track=${randomTrack}`;
-    playerFrame.src = embedUrl;
-    currentMoodPlaying = moodKey;
-    document.getElementById('song-title').innerText = `Playing: ${mood.toUpperCase()} Vibes`;
+    player.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true`;
  }
 
 // --- Face API Models ---
@@ -160,28 +152,27 @@ video.addEventListener('play', () => {
     }, 100);
 });
 
-// --- Simple Music Player ---
-
-
-// --- ROBUST DATABASE SAVER (Offline Safe) ---
-async function saveMoodToDatabase(mood, intensity, song) {
+// ROBUST DATABASE SAVER
+async function saveMoodToDatabase(mood,intensity,song) {
     console.log("Attempting save...");
-    
-    // 1. OPTIMISTIC UPDATE: Update the screen NOW (Don't wait for server)
-    addToHistoryList(mood, song, new Date()); 
+
+    addToHistoryList(mood,song,new Date());
 
     try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
+        const { data: {user}} = await supabaseClient.auth.getUser();
         if (user) {
-            const { error } = await supabaseClient
-                .from('mood_history')
-                .insert([{ user_id: user.id, mood: mood, intensity: intensity, song_name: song }]);
-            
-            if (error) console.error("Supabase Error (Ignored for Demo):", error);
-            else console.log("✅ Saved to Cloud!");
+            const {error} = await supabaseClient
+            .from('mood-history').insert([{user_id: user.id, mood: mood, intensity: intensity, song_name: song}]);
+
+            if (error) {
+                console.error("Supabase Error:", error);
+            } else {
+                console.log("Saved to Cloud");
+                loadMoodHistory();
+            }
         }
     } catch (err) {
-        console.warn("Offline Mode: Saved locally only.");
+        console.warn("Offline Mode: Saved locally only.")
     }
 }
 
@@ -189,7 +180,7 @@ async function saveMoodToDatabase(mood, intensity, song) {
 function addToHistoryList(mood, song, dateObj) {
     const list = document.getElementById('mood-list');
     
-    // Remove "No moods yet" message if it exists
+    // Remove "No moods yet" message
     if (list.innerHTML.includes("No moods recorded")) list.innerHTML = "";
 
     let icon = "🎵";
@@ -199,16 +190,15 @@ function addToHistoryList(mood, song, dateObj) {
     if (mood === "neutral") icon = "😐";
 
     const newItem = `
-        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: rgba(255, 255, 255, 0.05); border-radius: 8px; border-left: 4px solid #1DB954; animation: fadeIn 0.5s;">
-            <div style="display: flex; flex-direction: column;">
-                <span style="font-weight: bold; color: white; font-size: 1.1rem;">${icon} ${mood.toUpperCase()}</span>
-                <span style="font-size: 0.85rem; color: #b3b3b3;">${song}</span>
+        <li style="display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; border-bottom: 1px dashed black; animation: fadeIn 0.5s;">
+            <div style="display: flex; flex-direction: column; text-align: left;">
+                <span style="font-weight: bold; color: black; font-size: 1.1rem;">${icon} ${mood.toUpperCase()}</span>
+                <span style="font-size: 0.85rem; color: #555;">${song}</span>
             </div>
-            <span style="font-size: 0.8rem; color: #666; font-family: monospace;">${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+            <span style="font-size: 0.8rem; color: black; font-family: monospace;">${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
         </li>
     `;
     
-    // Add new item to the TOP of the list
     list.innerHTML = newItem + list.innerHTML;
 }
 
