@@ -258,7 +258,7 @@ async function loadMoodHistory() {
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(50);
+            .limit(25);
 
         if (error) throw error; // Stop if DB error
 

@@ -6,7 +6,7 @@
     --accent: #ff90e8;
     --text: black;
     --border: 3px solid black;
-    --shadow: 5px 5pz 0px black;
+    --shadow: 5px 5px 0px black;
 }
 
 body {
@@ -114,8 +114,9 @@ button:active {
 #history-section {
     background: white;
     position: relative;
-    max-width: 500px !important;
-    margin: 40px auto;
+    width: 100%;
+    margin: 0;
+    box-sizing: border-box;
 }
 
 #history-section:after {
@@ -150,4 +151,28 @@ button:active {
     padding: 0 !important;
     overflow: hidden;
     align-self: flex-start;
+}
+
+#video {
+    width: 100% !important;
+    height: auto !important;
+    max-width: 100%;
+}
+
+.col-right {
+    flex: 1;
+    min-width: 300px;
+    max-width: 400px;
+}
+
+.col-left {
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+    flex: 999;
+    min-width: 300px;
+}
+
+.workstation {
+    gap: 20px;
 }
