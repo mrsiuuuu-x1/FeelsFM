@@ -13,9 +13,14 @@ const STABILITY_THRESHOLD = 15;
  
  function playMusic(mood) {
     if (!mood || mood === currentMoodPlaying) return;
-
     currentMoodPlaying = mood;
-    const player = document.getElementById('music-player');
+
+    console.log(`Switching Music to: ${mood}`);
+
+    const playerBox = document.querySelector('.player-box');
+    const oldPlayer = document.getElementById('music-player');
+
+    // defining playlists
     const playlists = {
         'happy': '1479458365',
         'sad': '1911533742',
@@ -27,7 +32,24 @@ const STABILITY_THRESHOLD = 15;
     }
     const playlistId = playlists[mood] || playlists['neutral'];
 
-    player.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true`;
+    const newPlayer = document.createElement('iframe');
+    newPlayer.id = 'music-player';
+    newPlayer.title = "Deezer Player";
+    newPlayer.width = "100%";
+    newPlayer.height = "250";
+    newPlayer.frameBorder = "0";
+    newPlayer.allowTransparency = "true";
+    newPlayer.style.border = "none";
+    newPlayer.style.display = "block";
+
+    newPlayer.allow = "autoplay; encrypted-media; clipboard-write";
+    newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true&radius=0`;
+
+    if (oldPlayer) {
+        oldPlayer.replaceWith(newPlayer);
+    } else {
+        playerBox.appendChild(newPlayer);
+    }
  }
 
 // --- Face API Models ---
@@ -47,6 +69,7 @@ startBtn.addEventListener('click', () => {
     startBtn.innerText = "Scanning...(Hold Your Face)";
     emotionText.innerText = "Analyzing...";
     emotionText.style.color = "#1DB954";
+    playMusic('neutral');
     
     if (!cameraOn) {
         startVideo();
@@ -150,27 +173,51 @@ video.addEventListener('play', () => {
 
 
 // ROBUST DATABASE SAVER
-async function saveMoodToDatabase(mood,intensity,song) {
-    console.log("Attempting save...");
+async function saveMoodToDatabase(mood, intensity, song) {
+    console.log("Saving mood...");
 
-    addToHistoryList(mood,song,new Date());
+    const now = new Date();
+    const localEntry = {
+        mood: mood,
+        intensity: intensity,
+        song_name: song,
+        created_at: now.toISOString()
+    };
+
+    addToHistoryList(mood, song, now);
+    addPointToChart(localEntry); 
 
     try {
-        const { data: {user}} = await supabaseClient.auth.getUser();
+        const { data: { user } } = await supabaseClient.auth.getUser();
         if (user) {
-            const {error} = await supabaseClient
-            .from('mood-history').insert([{user_id: user.id, mood: mood, intensity: intensity, song_name: song}]);
-
-            if (error) {
-                console.error("Supabase Error:", error);
-            } else {
-                console.log("Saved to Cloud");
-                loadMoodHistory();
-            }
+            const { error } = await supabaseClient
+                .from('mood_history')
+                .insert([{ user_id: user.id, mood: mood, intensity: intensity, song_name: song }]);
+            
+            if (error) console.error("Supabase Error:", error);
+            else console.log("✅ Saved to Cloud (Background)");
         }
     } catch (err) {
-        console.warn("Offline Mode: Saved locally only.")
+        console.warn("Offline Mode: Saved locally only.");
     }
+}
+
+function addPointToChart(entry) {
+    if (!moodChartInstance) return;
+
+    const chart = moodChartInstance;
+    const dateObj = new Date(entry.created_at);
+    const label = dateObj.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
+
+    chart.data.labels.push(label);
+    chart.data.datasets[0].data.push(entry.intensity);
+
+    if (chart.data.labels.length > 10) {
+        chart.data.labels.shift();
+        chart.data.datasets[0].data.shift();
+    }
+
+    chart.update(); // ⚡ Redraw immediately
 }
 
 // --- Helper to draw the list item ---
@@ -211,7 +258,7 @@ async function loadMoodHistory() {
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(10);
+            .limit(50);
 
         if (error) throw error; // Stop if DB error
 
@@ -237,7 +284,7 @@ function updateChart(data) {
     if (typeof Chart === 'undefined' || !document.getElementById('moodChart')) return;
 
     const ctx = document.getElementById('moodChart').getContext('2d');
-    const chartData = [...data].reverse();
+    const chartData = [...data].slice(0,20).reverse();
     const labels = chartData.map(item => {
         const d = new Date(item.created_at);
         return d.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric'});
