@@ -92,13 +92,11 @@ video.addEventListener('play', () => {
     }
 
     const displaySize = { 
-        width: video.width, 
-        height: video.height 
+        width: video.videoWidth, 
+        height: video.videoHeight 
     };
 
     faceapi.matchDimensions(canvas, displaySize);
-    canvas.width = video.videoWidth;
-    canvas.height = video.videoHeight;
 
     setInterval(async () => {
         if (!isScanning) return; 
@@ -111,15 +109,15 @@ video.addEventListener('play', () => {
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        faceapi.draw.drawDetections(canvas, resizedDetections);
-        faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
-
         if (detections.length > 0) {
+            faceapi.draw.drawDetections(canvas, resizedDetections);
+            faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
             const expressions = detections[0].expressions;
             const highestEmotion = Object.keys(expressions).reduce((a, b) =>
                 expressions[a] > expressions[b] ? a : b
             );
-
+        
             if (highestEmotion === lastEmotion) {
                 emotionTimer++;
             } else {
@@ -131,26 +129,25 @@ video.addEventListener('play', () => {
                 const currentEmotion = highestEmotion;
                 emotionText.innerText = `MOOD: ${currentEmotion.toUpperCase()}`;
                 
-                // 1. Play Music FIRST (Updates UI immediately)
                 playMusic(currentEmotion);
-                
-                // 2. Wait a tiny bit for the UI to settle, then Save
+
                 const intensity = expressions[highestEmotion];
+
                 setTimeout(() => {
-                    const currentTrack = document.getElementById("song-title").innerText;
-                    saveMoodToDatabase(currentEmotion, intensity, currentTrack);
+                    const safeSongName = `${currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1)} Mix`;
+                    saveMoodToDatabase(currentEmotion, intensity, safeSongName);
                 }, 100);
-                
-                // 3. Reset UI
+            
+                // Reset UI
                 isScanning = false;
                 startBtn.innerText = "Scan Mood Again!";
                 emotionTimer = 0;
-                
                 stopCamera();
             }
         }
     }, 100);
 });
+
 
 // ROBUST DATABASE SAVER
 async function saveMoodToDatabase(mood,intensity,song) {
@@ -241,7 +238,10 @@ function updateChart(data) {
 
     const ctx = document.getElementById('moodChart').getContext('2d');
     const chartData = [...data].reverse();
-    const labels = chartData.map(item => new Date(item.created_at).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+    const labels = chartData.map(item => {
+        const d = new Date(item.created_at);
+        return d.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric'});
+    });
     const intensities = chartData.map(item => item.intensity);
     const moodNames = chartData.map(item => item.mood);
 
