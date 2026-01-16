@@ -54,7 +54,7 @@ header h1 {
     margin-top: 40px;
 }
 
-.camera-box, .player-box, #history-section {
+.camera-box, .chart-box, .player-box, #history-section {
     background: white;
     border: var(--border);
     box-shadow: var(--shadow);
@@ -63,7 +63,7 @@ header h1 {
     transition: transform 0.2s;
 }
 
-.camera-box:hover, .player-box:hover {
+.camera-box:hover, .player-box:hover, .chart-box:hover, #history-section:hover {
     transform: translate(-2px,-2px);
     box-shadow: 7px 7px 0px black;
 }
@@ -81,6 +81,11 @@ button {
     cursor: pointer;
     transition: all 0.1s;
     margin-top: 15px;
+}
+
+button:hover {
+    transform: translate(-2px,-2px);
+    box-shadow: 7px 7px 0px black;
 }
 
 button:active {
@@ -175,4 +180,110 @@ button:active {
 
 .workstation {
     gap: 20px;
+}
+
+/* dark-mode theme*/
+body.dark-mode {
+    --bg-color: #050505;
+    --grid-color: #222;
+    --text: #ffffff;
+    --border: 3px solid white;
+    --shadow: 5px 5px 0px white;
+    --primary: #00ff41;
+}
+
+body.dark-mode .window-bar {
+    background: white;
+    color: black;
+}
+
+body.dark-mode header h1 {
+    background: white;
+    color: black;
+}
+
+body.dark-mode button {
+    color: black;
+}
+
+body.dark-mode .chart-box:hover,
+body.dark-mode #history-section:hover,
+body.dark-mode .camera-box:hover,
+body.dark-mode .player-box:hover {
+    background: white !important;
+    color: black !important;
+    border: 3px solid black !important;
+    box-shadow: 7px 7px 0px white !important;
+}
+
+body.dark-mode .window-bar {
+    background: black !important;
+    color: white !important;
+    border-bottom: 3px solid black;
+}
+
+body.dark-mode button {
+    box-shadow: 5px 5px 0px white !important;
+}
+
+body.dark-mode button {
+    box-shadow: 5px 5px 0px white !important;
+}
+body.dark-mode button:active {
+    box-shadow: 5px 5px 0px white !important;
+}
+body.dark-mode button {
+    border: 3px solid black !important;
+    box-shadow: 5px 5px 0px black !important;
+    color: black !important;
+}
+body.dark-mode button:hover {
+    box-shadow: 7px 7px 0px black !important;
+    transform: translate(-2px, -2px);
+}
+body.dark-mode button:active {
+    box-shadow: 0px 0px 0px black !important;
+    transform: translate(5px, 5px);
+}
+
+body.dark-mode header button {
+    border: 3px solid white !important;
+    box-shadow: 5px 5px 0px white !important;
+    color: black !important;
+    background: #ff6b6b !important;
+}
+body.dark-mode #theme-btn {
+    background: white !important;
+}
+body.dark-mode header button:hover {
+    box-shadow: 7px 7px 0px white !important;
+    transform: translate(-2px,-2px);
+}
+body.dark-mode header butto:active {
+    box-shadow: 0px 0px 0px white !important;
+    transform: translate(5px,5px);
+}
+
+/* changing the position of the theme btn and the logout btn*/
+#theme-btn {
+    position: fixed;
+    top: 30px;
+    left: 30px;
+    margin: 0;
+    z-index: 2000;
+}
+#logout-btn {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    margin: 0;
+    z-index: 2000;
+}
+header {
+    position: relative;
+    padding-top: 10px;
+    margin-bottom: 40px;
+}
+#theme-btn, #logout-btn {
+    transition: all 0.3s ease;
 }
