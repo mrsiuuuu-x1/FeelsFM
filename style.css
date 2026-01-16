@@ -266,14 +266,14 @@ body.dark-mode header butto:active {
 
 /* changing the position of the theme btn and the logout btn*/
 #theme-btn {
-    position: fixed;
+    position: absolute;
     top: 30px;
     left: 30px;
     margin: 0;
     z-index: 2000;
 }
 #logout-btn {
-    position: fixed;
+    position: absolute;
     top: 30px;
     right: 30px;
     margin: 0;
