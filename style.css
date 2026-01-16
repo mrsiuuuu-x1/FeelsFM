@@ -287,3 +287,41 @@ header {
 #theme-btn, #logout-btn {
     transition: all 0.3s ease;
 }
+
+/* MOBILE OPTIMIZATION PATCH */
+@media screen and (max-width: 768px) {
+    header h1 {
+        font-size: 1.8rem;
+        margin-top: 40px;
+    }
+    #theme-btn, #logout-btn {
+        top: 10px;
+        padding: 5px 10px;
+        font-size: 0.8rem;
+    }
+    #theme-btn { left: 10px;}
+    #logout-btn { right: 10px}
+
+    .workstation {
+        width: 100%;
+        margin-top: 10px;
+        gap: 20px;
+    }
+
+    .col-left, .col-right {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .camera-box {
+        width: 100%;
+        height: auto;
+    }
+
+    #video {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 400px;
+        object-fit: cover;
+    }
+}

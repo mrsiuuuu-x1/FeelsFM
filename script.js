@@ -79,8 +79,9 @@ startBtn.addEventListener('click', () => {
 function startVideo() {
     navigator.mediaDevices.getUserMedia({ 
         video: {
-            width: 640,
-            height: 480,
+            facingMode: "user",
+            width: {ideal:320},
+            height: {ideal:240}
         }
     })
     .then(stream => {
@@ -159,7 +160,7 @@ video.addEventListener('play', () => {
                 setTimeout(() => {
                     const safeSongName = `${currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1)} Mix`;
                     saveMoodToDatabase(currentEmotion, intensity, safeSongName);
-                }, 100);
+                }, 500);
             
                 // Reset UI
                 isScanning = false;
