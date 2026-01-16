@@ -196,7 +196,7 @@ async function saveMoodToDatabase(mood, intensity, song) {
                 .insert([{ user_id: user.id, mood: mood, intensity: intensity, song_name: song }]);
             
             if (error) console.error("Supabase Error:", error);
-            else console.log("✅ Saved to Cloud (Background)");
+            else console.log("Saved to Cloud (Background)");
         }
     } catch (err) {
         console.warn("Offline Mode: Saved locally only.");
@@ -264,7 +264,7 @@ async function loadMoodHistory() {
         if (error) throw error; // Stop if DB error
 
         if (data && data.length > 0) {
-            console.log("✅ Found", data.length, "moods. Drawing chart...");
+            console.log("Found", data.length, "moods. Drawing chart...");
             document.getElementById('mood-list').innerHTML = ""; 
             data.forEach(item => addToHistoryList(item.mood, item.song_name, new Date(item.created_at)));
             

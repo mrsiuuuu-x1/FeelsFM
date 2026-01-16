@@ -344,4 +344,20 @@ header {
         max-height: 350px;
         object-fit: cover;
     }
+
+    .player-box iframe {
+        width: 100% !important;
+        height: 150px !important;
+        border: none !important;
+        display: block;
+    }
+
+    .player-box {
+        width: 100%;
+        padding: 0 !important;
+        overflow: hidden;
+        background: transparent !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
 }
