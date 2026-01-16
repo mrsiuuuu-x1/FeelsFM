@@ -259,7 +259,7 @@ async function loadMoodHistory() {
             .select('*')
             .eq('user_id', user.id)
             .order('created_at', { ascending: false })
-            .limit(25);
+            .limit(10);
 
         if (error) throw error; // Stop if DB error
 
@@ -285,7 +285,7 @@ function updateChart(data) {
     if (typeof Chart === 'undefined' || !document.getElementById('moodChart')) return;
 
     const ctx = document.getElementById('moodChart').getContext('2d');
-    const chartData = [...data].slice(0,20).reverse();
+    const chartData = [...data].reverse();
     const labels = chartData.map(item => {
         const d = new Date(item.created_at);
         return d.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric'});
