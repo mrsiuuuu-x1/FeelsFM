@@ -181,6 +181,7 @@ header h1 {
     object-fit: cover;
     transform: scaleX(-1);
     pointer-events: none; 
+    z-index: 10;
 }
 
 #moodChart {
@@ -399,7 +400,8 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #0505
 
 /* CLOSE BUTTON STYLING */
 .window-controls span:last-child {
-    color: #ff6b6b;
+    color: black;
+    background: #ff6b6b;
     cursor: pointer;
     font-weight: bold;
     transition: all 0.2s;

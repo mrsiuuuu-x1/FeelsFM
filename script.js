@@ -3,24 +3,23 @@ const startBtn = document.getElementById('start-btn');
 const emotionText = document.getElementById('emotion');
 let cameraOn = false;
 let isScanning = false;
+let detectionInterval = null; 
 
 // Variables for stability
 let lastEmotion = "";
 let emotionTimer = 0;
-const STABILITY_THRESHOLD = 15; 
+const STABILITY_THRESHOLD = 10; 
 
 let currentMoodPlaying = null;
 
 function playMusic(mood) {
     if (!mood || mood === currentMoodPlaying) return;
     currentMoodPlaying = mood;
-
     console.log(`Switching Music to: ${mood}`);
 
     const playerBox = document.querySelector('.player-box');
     const oldPlayer = document.getElementById('music-player');
 
-    // defining playlists
     const playlists = {
         'happy': '1479458365',
         'sad': '1911533742',
@@ -36,20 +35,17 @@ function playMusic(mood) {
     newPlayer.id = 'music-player';
     newPlayer.title = "Deezer Player";
     newPlayer.width = "100%";
-    // Default height for desktop, CSS overrides this on mobile
     newPlayer.height = "300"; 
     newPlayer.frameBorder = "0";
     newPlayer.allowTransparency = "true";
     newPlayer.style.border = "none";
     newPlayer.style.display = "block";
-
     newPlayer.allow = "autoplay; encrypted-media; clipboard-write";
     newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true&radius=0`;
 
     if (oldPlayer) {
         oldPlayer.replaceWith(newPlayer);
     } else {
-        // Append after the window bar
         playerBox.appendChild(newPlayer);
     }
 }
@@ -87,71 +83,80 @@ function startVideo() {
     })
     .then(stream => {
         video.srcObject = stream;
+        video.play(); 
         cameraOn = true;
     })
     .catch(err => console.error("Error accessing webcam:", err));
 }
 
 function stopCamera() {
-    if (!video.srcObject) return;
-
-    video.srcObject.getTracks().forEach(track => track.stop());
-    video.srcObject = null;
+    if (detectionInterval) {
+        clearInterval(detectionInterval);
+        detectionInterval = null;
+    }
+    if (video.srcObject) {
+        video.srcObject.getTracks().forEach(track => track.stop());
+        video.srcObject = null;
+    }
     cameraOn = false;
-
     console.log("Camera stopped");
 }
 
 // --- Main AI Loop ---
 video.addEventListener('play', () => {
-    // Use the parent element to ensure we find the right container
-    const wrapper = video.parentElement;
+    // 1. Clean up old loops
+    if (detectionInterval) clearInterval(detectionInterval);
+
+    // 2. THE FIX: Use 'parentElement' to find the wrapper automatically
+    const wrapper = video.parentElement; 
     let canvas = document.getElementById('face-canvas');
 
     if (!canvas) {
-        canvas = faceapi.createCanvasFromMedia(video);
+        canvas = document.createElement('canvas');
         canvas.id = "face-canvas";
-        // Force canvas to sit on top of video
         canvas.style.position = "absolute";
         canvas.style.top = "0";
         canvas.style.left = "0";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
+        // This is the line that was breaking. Now wrapper is guaranteed to exist.
         wrapper.append(canvas);
     }
 
-    setInterval(async () => {
+    // 3. Start Loop
+    detectionInterval = setInterval(async () => {
         if (!isScanning) return; 
 
-        // --- DYNAMIC RESIZING FIX ---
-        // Get the real displayed size of the video
+        // --- SIZE CHECK ---
+        if (video.clientWidth === 0 || video.clientHeight === 0) {
+            return;
+        }
+
         const displaySize = { 
             width: video.clientWidth, 
             height: video.clientHeight 
         };
 
-        // Ensure canvas matches video size exactly
+        // Resize canvas if video size changes
         if (canvas.width !== displaySize.width || canvas.height !== displaySize.height) {
             canvas.width = displaySize.width;
             canvas.height = displaySize.height;
+            faceapi.matchDimensions(canvas, displaySize);
         }
 
-        faceapi.matchDimensions(canvas, displaySize);
-
+        // Detect
         const detections = await faceapi
             .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceExpressions();
 
-        // --- FIX FOR MIRRORING ---
-        // The 'true' argument here tells face-api to mirror the results horizontally
-        const resizedDetections = faceapi.resizeResults(detections, displaySize, true);
+        // Resize Results
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
         
-        // Clear old drawings
+        // Draw
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (detections.length > 0) {
-            // Draw the new box
             faceapi.draw.drawDetections(canvas, resizedDetections);
             faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
@@ -174,13 +179,10 @@ video.addEventListener('play', () => {
                 playMusic(currentEmotion);
 
                 const intensity = expressions[highestEmotion];
+                const safeSongName = `${currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1)} Mix`;
 
-                setTimeout(() => {
-                    const safeSongName = `${currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1)} Mix`;
-                    saveMoodToDatabase(currentEmotion, intensity, safeSongName);
-                }, 500);
+                saveMoodToDatabase(currentEmotion, intensity, safeSongName);
             
-                // Reset UI
                 isScanning = false;
                 startBtn.innerText = "Scan Mood Again!";
                 emotionTimer = 0;
@@ -190,11 +192,9 @@ video.addEventListener('play', () => {
     }, 100);
 });
 
-
 // ROBUST DATABASE SAVER
 async function saveMoodToDatabase(mood, intensity, song) {
-    console.log("Saving mood...");
-
+    console.log("Saving mood:", mood);
     const now = new Date();
     const localEntry = {
         mood: mood,
@@ -204,48 +204,44 @@ async function saveMoodToDatabase(mood, intensity, song) {
     };
 
     addToHistoryList(mood, song, now);
-    addPointToChart(localEntry); 
+    if (moodChartInstance) {
+        addPointToChart(localEntry); 
+    } else {
+        updateChart([localEntry]);
+    }
 
     try {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) {
-            const { error } = await supabaseClient
-                .from('mood_history')
-                .insert([{ user_id: user.id, mood: mood, intensity: intensity, song_name: song }]);
-            
-            if (error) console.error("Supabase Error:", error);
-            else console.log("Saved to Cloud (Background)");
+        if (typeof supabaseClient !== 'undefined') {
+            const { data: { user } } = await supabaseClient.auth.getUser();
+            if (user) {
+                await supabaseClient
+                    .from('mood_history')
+                    .insert([{ user_id: user.id, mood: mood, intensity: intensity, song_name: song }]);
+            }
         }
     } catch (err) {
-        console.warn("Offline Mode: Saved locally only.");
+        console.warn("Offline Mode:", err);
     }
 }
 
 function addPointToChart(entry) {
     if (!moodChartInstance) return;
-
     const chart = moodChartInstance;
     const dateObj = new Date(entry.created_at);
     const label = dateObj.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric' });
 
     chart.data.labels.push(label);
     chart.data.datasets[0].data.push(entry.intensity);
-
     if (chart.data.labels.length > 10) {
         chart.data.labels.shift();
         chart.data.datasets[0].data.shift();
     }
-
-    chart.update(); // ⚡ Redraw immediately
+    chart.update();
 }
 
-// --- Helper to draw the list item ---
 function addToHistoryList(mood, song, dateObj) {
     const list = document.getElementById('mood-list');
-    
-    // Remove "No moods yet" message
     if (list.innerHTML.includes("No moods recorded")) list.innerHTML = "";
-
     let icon = "🎵";
     if (mood === "happy") icon = "😄";
     if (mood === "sad") icon = "😢";
@@ -261,17 +257,15 @@ function addToHistoryList(mood, song, dateObj) {
             <span style="font-size: 0.8rem; color: black; font-family: monospace;">${dateObj.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
         </li>
     `;
-    
     list.innerHTML = newItem + list.innerHTML;
 }
 
-// initial loader
 async function loadMoodHistory() {
     console.log("Loading History...");
     try {
+        if (typeof supabaseClient === 'undefined') { updateChart([]); return; }
         const { data: { user } } = await supabaseClient.auth.getUser();
-        if (!user) return;
-
+        if (!user) { updateChart([]); return; }
         const { data, error } = await supabaseClient
             .from('mood_history')
             .select('*')
@@ -279,31 +273,25 @@ async function loadMoodHistory() {
             .order('created_at', { ascending: false })
             .limit(10);
 
-        if (error) throw error; // Stop if DB error
-
         if (data && data.length > 0) {
-            console.log("Found", data.length, "moods. Drawing chart...");
             document.getElementById('mood-list').innerHTML = ""; 
             data.forEach(item => addToHistoryList(item.mood, item.song_name, new Date(item.created_at)));
-            
-            // draw the chart now
             updateChart(data); 
         } else {
-            console.log("No history found yet.");
+            updateChart([]); 
         }
     } catch (err) {
-        console.error("CRITICAL CHART ERROR:", err); 
+        console.error("Chart Load Error:", err); 
+        updateChart([]); 
     }
 }
 
-// chart logic
 let moodChartInstance = null;
-
 function updateChart(data) {
     if (typeof Chart === 'undefined' || !document.getElementById('moodChart')) return;
-
     const ctx = document.getElementById('moodChart').getContext('2d');
-    const chartData = [...data].reverse();
+    const chartData = data ? [...data].reverse() : [];
+    
     const labels = chartData.map(item => {
         const d = new Date(item.created_at);
         return d.toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: 'numeric'});
@@ -337,49 +325,23 @@ function updateChart(data) {
         options: {
             responsive: true,
             maintainAspectRatio: false,
-            layout: {
-                padding: {
-                    top: 10,  
-                    left: 10,
-                    right: 20,
-                    bottom: 0 
-                }
-            },
+            layout: { padding: { top: 40, left: 10, right: 20, bottom: 0 } },
             scales: {
                 y: { 
-                    beginAtZero: true, 
-                    max: 1.0, 
-                    grid: { 
-                        color: '#e0e0e0',
-                        lineWidth: 2,
-                        tickLength: 0
-                    },
-                    ticks: { 
-                        color: '#000',
-                        font: { family: "'Courier New', monospace", weight: 'bold' },
-                        stepSize: 0.2,
-                        autoSkip: false,
-                        includeBounds: true,
-                        padding: 10 
-                    },
+                    beginAtZero: true, max: 1.0, 
+                    grid: { color: '#e0e0e0', lineWidth: 2, tickLength: 0 },
+                    ticks: { color: '#000', font: { family: "'Courier New', monospace", weight: 'bold' }, padding: 10 },
                     border: { display: false }
                 },
                 x: { 
-                    grid: { display: false },
-                    offset: true,
-                    ticks: { 
-                        color: '#000',
-                        font: { family: "'Courier New', monospace", size: 10 },
-                        maxRotation: 45,
-                        minRotation: 45
-                    }
+                    grid: { display: false }, offset: true,
+                    ticks: { color: '#000', font: { family: "'Courier New', monospace", size: 10 }, maxRotation: 45, minRotation: 45 }
                 }
             },
-            // --- RESTORED TOOLTIP CONFIGURATION ---
             plugins: { 
                 legend: { display: false },
                 tooltip: {
-                    enabled: true, // Force enable
+                    enabled: true, 
                     backgroundColor: '#000',
                     titleColor: '#fff',
                     bodyColor: '#a3ffac',
@@ -402,23 +364,12 @@ function updateChart(data) {
             }
         }
     });
-    console.log("Chart drawn (Neo-Brutalist Style)!");
 }
 loadMoodHistory();
 
-// dark-mode logic
 const themeBtn = document.getElementById('theme-btn');
-
-if (localStorage.getItem('theme') === 'dark') {
-    document.body.classList.add('dark-mode');
-}
-// btn-click handler
+if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark-mode');
 themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
-    //saving preference
-    if (document.body.classList.contains('dark-mode')) {
-        localStorage.setItem('theme','dark');
-    } else {
-        localStorage.setItem('theme','light');
-    }
+    localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
 });
