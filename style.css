@@ -30,6 +30,7 @@ body {
     text-align: center;
     width: 90%;
     max-width: 1000px;
+    position: relative;
 }
 
 header h1 {
@@ -267,17 +268,19 @@ body.dark-mode header butto:active {
 /* changing the position of the theme btn and the logout btn*/
 #theme-btn {
     position: absolute;
-    top: 30px;
-    left: 30px;
-    margin: 0;
-    z-index: 2000;
+    top: 20px;
+    z-index: 9999;
+}
+#theme-btn {
+    left: 0;
 }
 #logout-btn {
     position: absolute;
-    top: 30px;
-    right: 30px;
-    margin: 0;
-    z-index: 2000;
+    top: 20px;
+    z-index: 9999;
+#logout-btn {
+    right: 0;
+}
 }
 header {
     position: relative;
