@@ -69,7 +69,6 @@ startBtn.addEventListener('click', () => {
     startBtn.innerText = "Scanning...(Hold Your Face)";
     emotionText.innerText = "Analyzing...";
     emotionText.style.color = "#1DB954";
-    playMusic('neutral');
     
     if (!cameraOn) {
         startVideo();
@@ -103,37 +102,45 @@ function stopCamera() {
 
 // --- Main AI Loop ---
 video.addEventListener('play', () => {
-    const wrapper = document.getElementById('video-wrapper');
-    let canvas = document.getElementById('face-canvas');
     
+    const wrapper = video.parentElement; 
+    let canvas = document.getElementById('face-canvas');
+
     if (!canvas) {
         canvas = faceapi.createCanvasFromMedia(video);
         canvas.id = "face-canvas";
+        // Force canvas to sit on top of video
         canvas.style.position = "absolute";
         canvas.style.top = "0";
         canvas.style.left = "0";
+        canvas.style.width = "100%";
+        canvas.style.height = "100%";
         wrapper.append(canvas);
     }
 
-    const displaySize = { 
-        width: video.videoWidth, 
-        height: video.videoHeight 
-    };
-
-    faceapi.matchDimensions(canvas, displaySize);
-
     setInterval(async () => {
         if (!isScanning) return; 
+
+        const displaySize = { 
+            width: video.clientWidth, 
+            height: video.clientHeight 
+        };
+
+        faceapi.matchDimensions(canvas, displaySize);
 
         const detections = await faceapi
             .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceExpressions();
 
+        // Resize the blue box coordinates to match the screen size
         const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        
+        // Clear old drawings
         const ctx = canvas.getContext('2d');
         ctx.clearRect(0, 0, canvas.width, canvas.height);
 
         if (detections.length > 0) {
+            // Draw the new box
             faceapi.draw.drawDetections(canvas, resizedDetections);
             faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
