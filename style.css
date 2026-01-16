@@ -64,7 +64,9 @@ header h1 {
     flex-wrap: wrap;
     justify-content: center;
     gap: 40px;
-    margin-top: 40px;
+    margin-top: 80px;
+    width: 90%;
+    max-width: 1200px;
 }
 
 .camera-box, .chart-box, .player-box, #history-section {
@@ -79,6 +81,18 @@ header h1 {
 .camera-box:hover, .player-box:hover, .chart-box:hover, #history-section:hover {
     transform: translate(-2px,-2px);
     box-shadow: 7px 7px 0px black;
+}
+
+.chart-box {
+    position: relative;
+    height: 350px !important;
+    width: 100%;
+    background: white;
+    border: var(--border);
+    box-shadow: var(--shadow);
+    padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
 }
 
 button {
