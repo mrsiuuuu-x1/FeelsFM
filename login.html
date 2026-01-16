@@ -3,26 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FeelsFm - Login</title>
+    <title>FeelsFM - Login</title>
     <link rel="stylesheet" href="style.css">
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script defer src="auth.js"></script>
+    
+    <style>
+        /* --- LOGIN PAGE STYLES --- */
+        body {
+            align-items: center !important; 
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* 1. The Theme Button */
+        #login-theme-btn {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            margin: 0;
+            z-index: 100;
+            
+            /* Default (Light Mode) Look */
+            background: var(--primary);
+            color: black;
+            border: 3px solid black;
+            box-shadow: 5px 5px 0px black;
+        }
+
+        /* --- THE FIX: WHITE BUTTON + BLACK BORDER IN DARK MODE --- */
+        body.dark-mode #login-theme-btn {
+            background: white !important;
+            color: black !important;
+            border: 3px solid black !important;      /* FORCE BLACK BORDER */
+            box-shadow: 5px 5px 0px white !important; /* White Shadow */
+        }
+
+        /* 2. The Login Card */
+        .login-card {
+            background: white;
+            border: var(--border);
+            box-shadow: var(--shadow);
+            padding: 50px 30px;
+            text-align: center;
+            max-width: 400px;
+            width: 90%;
+            position: relative;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* 3. The Title */
+        .login-title {
+            font-size: 3.5rem;
+            font-weight: 900;
+            background: black !important; 
+            color: white !important;
+            border: 3px solid black !important;
+            padding: 10px 20px;
+            transform: rotate(-3deg);
+            box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+            margin-bottom: 30px;
+            margin-top: -10px;
+        }
+
+        /* 4. Subtitle */
+        .login-subtitle {
+            font-weight: bold;
+            margin-bottom: 40px;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: black !important;
+        }
+
+        /* 5. Google Button */
+        #google-login-btn {
+            width: 100%;
+            background: var(--primary);
+            color: black !important;
+            border: 3px solid black !important;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Dark Mode Card Styling */
+        body.dark-mode .login-card {
+            background: white;
+            color: black;
+            border: 3px solid white;
+            box-shadow: 5px 5px 0px white;
+        }
+    </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>FeelsFM</h1>
-            <p>Sign in to sync your Spotify.</p>
-        </header>
 
-        <div class="result-box">
-            <button id="google-login-btn" class="login-btn">
-                Sign in with Google
-            </button>
-            <p style="margin-top: 15px; font-size: 0.9em; opacity: 0.7;">
-                (Or <a href="index.html" style="color: white;">continue as Guest</a>)
-            </p>
-        </div>
+    <button id="login-theme-btn">☀ / ☾</button>
+
+    <div class="login-card">
+        <div class="login-title">FEELSFM</div>
+        <div class="login-subtitle">Sign in to sync your vibe</div>
+        
+        <button id="google-login-btn">
+            Sign in with Google
+        </button>
+
+        <p style="margin-top: 20px; font-size: 0.8rem; font-weight: bold; color: black;">
+            (Or <a href="dashboard.html" style="color: black; text-decoration: underline;">Continue as Guest</a>)
+        </p>
     </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script defer src="auth.js"></script>
+    
+    <script>
+        // --- THEME LOGIC ---
+        const themeBtn = document.getElementById('login-theme-btn');
+
+        if (localStorage.getItem('theme') === 'dark') {
+            document.body.classList.add('dark-mode');
+        }
+
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('dark-mode');
+            if (document.body.classList.contains('dark-mode')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>
