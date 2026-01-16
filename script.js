@@ -9,9 +9,9 @@ let lastEmotion = "";
 let emotionTimer = 0;
 const STABILITY_THRESHOLD = 15; 
 
- let currentMoodPlaying = null;
- 
- function playMusic(mood) {
+let currentMoodPlaying = null;
+
+function playMusic(mood) {
     if (!mood || mood === currentMoodPlaying) return;
     currentMoodPlaying = mood;
 
@@ -36,7 +36,8 @@ const STABILITY_THRESHOLD = 15;
     newPlayer.id = 'music-player';
     newPlayer.title = "Deezer Player";
     newPlayer.width = "100%";
-    newPlayer.height = "250";
+    // Default height for desktop, CSS overrides this on mobile
+    newPlayer.height = "300"; 
     newPlayer.frameBorder = "0";
     newPlayer.allowTransparency = "true";
     newPlayer.style.border = "none";
@@ -48,9 +49,10 @@ const STABILITY_THRESHOLD = 15;
     if (oldPlayer) {
         oldPlayer.replaceWith(newPlayer);
     } else {
+        // Append after the window bar
         playerBox.appendChild(newPlayer);
     }
- }
+}
 
 // --- Face API Models ---
 Promise.all([
@@ -102,8 +104,8 @@ function stopCamera() {
 
 // --- Main AI Loop ---
 video.addEventListener('play', () => {
-
-    const wrapper = video.parentElement; 
+    // Use the parent element to ensure we find the right container
+    const wrapper = video.parentElement;
     let canvas = document.getElementById('face-canvas');
 
     if (!canvas) {
@@ -121,10 +123,18 @@ video.addEventListener('play', () => {
     setInterval(async () => {
         if (!isScanning) return; 
 
+        // --- DYNAMIC RESIZING FIX ---
+        // Get the real displayed size of the video
         const displaySize = { 
             width: video.clientWidth, 
             height: video.clientHeight 
         };
+
+        // Ensure canvas matches video size exactly
+        if (canvas.width !== displaySize.width || canvas.height !== displaySize.height) {
+            canvas.width = displaySize.width;
+            canvas.height = displaySize.height;
+        }
 
         faceapi.matchDimensions(canvas, displaySize);
 
@@ -132,8 +142,9 @@ video.addEventListener('play', () => {
             .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceExpressions();
 
-        // Resize the blue box coordinates to match the screen size
-        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        // --- FIX FOR MIRRORING ---
+        // The 'true' argument here tells face-api to mirror the results horizontally
+        const resizedDetections = faceapi.resizeResults(detections, displaySize, true);
         
         // Clear old drawings
         const ctx = canvas.getContext('2d');
@@ -328,10 +339,10 @@ function updateChart(data) {
             maintainAspectRatio: false,
             layout: {
                 padding: {
-                    top: 10,
+                    top: 10,  
                     left: 10,
-                    right: 10,
-                    bottom: 10
+                    right: 20,
+                    bottom: 0 
                 }
             },
             scales: {
@@ -349,7 +360,7 @@ function updateChart(data) {
                         stepSize: 0.2,
                         autoSkip: false,
                         includeBounds: true,
-                        padding: 15
+                        padding: 10 
                     },
                     border: { display: false }
                 },
@@ -358,13 +369,17 @@ function updateChart(data) {
                     offset: true,
                     ticks: { 
                         color: '#000',
-                        font: { family: "'Courier New', monospace", size: 10 } 
+                        font: { family: "'Courier New', monospace", size: 10 },
+                        maxRotation: 45,
+                        minRotation: 45
                     }
                 }
             },
+            // --- RESTORED TOOLTIP CONFIGURATION ---
             plugins: { 
                 legend: { display: false },
                 tooltip: {
+                    enabled: true, // Force enable
                     backgroundColor: '#000',
                     titleColor: '#fff',
                     bodyColor: '#a3ffac',

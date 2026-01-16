@@ -1,4 +1,4 @@
-/* --- FEELS FM: NEO-BRUTALIST THEME --- */
+/* --- FEELS FM: NEO-BRUTALIST THEME (FIXED V3) --- */
 
 :root {
     --bg-color: #f4f4f0;
@@ -111,11 +111,13 @@ header h1 {
     background: white;
     border: var(--border);
     box-shadow: var(--shadow);
-    padding: 20px;
+    padding: 20px; /* Standard padding for all boxes */
     border-radius: 0;
     transition: transform 0.2s;
     width: 100%;
     box-sizing: border-box;
+    position: relative; /* Ensure overflow hidden works correctly */
+    overflow: hidden;   /* Clip content that hits edges */
 }
 
 .camera-box:hover, .player-box:hover, .chart-box:hover, #history-section:hover {
@@ -123,31 +125,54 @@ header h1 {
     box-shadow: 7px 7px 0px black;
 }
 
+/* Chart Box Specifics */
 .chart-box {
-    position: relative;
-    height: 350px !important;
-    overflow: hidden;
-}
-
-.player-box {
-    padding: 0 !important;
-    overflow: hidden;
-}
-
-.camera-box {
-    position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    height: 350px !important; 
+    background: white;
+    border: var(--border);
+    box-shadow: var(--shadow);
     padding: 10px;
+    box-sizing: border-box;
+    overflow: hidden;
+    position: relative;
+}
+
+.chart-box .window-bar {
+    flex: 0 0 auto; 
+    margin-bottom: 10px;
+}
+
+/* Camera Box Specifics */
+.camera-box {
+    padding: 10px; /* Slightly less padding for video */
+}
+
+/* Player Box Specifics - FIX FOR MISSING HEADER */
+.player-box iframe {
+    /* Use negative margins to pull iframe to edges, counteracting parent padding */
+    margin: 0 -20px -20px -20px; 
+    width: calc(100% + 40px) !important; 
+    display: block;
+}
+
+
+/* WRAPPER FIXES */
+.camera-wrapper {
+    position: relative; 
+    width: 100%;
+    height: auto;
 }
 
 #video {
     width: 100%;
     height: auto;
     display: block;
-    transform: scaleX(-1);
+    transform: scaleX(-1); /* Mirror the video feed */
 }
 
-canvas {
+#face-canvas {
     position: absolute;
     top: 0;
     left: 0;
@@ -155,7 +180,14 @@ canvas {
     height: 100%;
     object-fit: cover;
     transform: scaleX(-1);
-    pointer-events: none;
+    pointer-events: none; 
+}
+
+#moodChart {
+    pointer-events: auto !important;
+    transform: none !important;
+    width: 100% !important;
+    height: 100% !important;
 }
 
 /* --- BUTTON STYLES --- */
@@ -201,25 +233,28 @@ button:active {
     font-size: 0.9rem;
     font-weight: bold;
     letter-spacing: 1px;
-    margin: -20px -20px 20px -20px;
+    /* Negative margins to pull bar into the padding area */
+    margin: -20px -20px 20px -20px; 
+}
+
+/* Camera box has smaller padding, adjust its window bar margin */
+.camera-box .window-bar {
+    margin: -10px -10px 10px -10px;
 }
 
 /* History Section Styles */
-#history-section {
-    position: relative;
-}
-
 #history-section:after {
     content: "";
     position: absolute;
-    bottom: -10px;
+    bottom: 0;
     left: 0;
     width: 100%;
-    height: 10px;
+    height: 15px;
     background: 
         linear-gradient(45deg,transparent 33.333%,white 33.333%,white 66.667%,transparent 66.667%),
         linear-gradient(-45deg,transparent 33.333%,white 33.333%,white 66.667%,transparent 66.667%);
     background-size: 20px 40px;
+    border-top: var(--border);
 }
 
 #mood-list li {
@@ -272,9 +307,11 @@ body.dark-mode .player-box {
 
 /* Invert hover states for dark mode */
 body.dark-mode .chart-box:hover,
-body.dark-mode .camera-box:hover {
+body.dark-mode .camera-box:hover,
+body.dark-mode .player-box:hover,
+body.dark-mode #history-section:hover {
     box-shadow: 7px 7px 0px white !important;
-    border-color: white !important;
+    border-color: black !important;
 }
 
 body.dark-mode button {
@@ -291,11 +328,11 @@ body.dark-mode #logout-btn {
     color: black !important;
 }
 
-body.dark-mode #theme-btn { background: white !important; }
-body.dark-mode #logout-btn { background: #ff6b6b !important; }
+body.dark-mode #theme-btn { background: white !important; border-color: #050505 !important; }
+body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #050505 !important; }
 
 
-/* --- MOBILE OPTIMIZATION PATCH (The Fix for Mobile) --- */
+/* --- MOBILE OPTIMIZATION PATCH --- */
 @media screen and (max-width: 768px) {
     header {
         padding-top: 60px;
@@ -328,6 +365,7 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; }
         gap: 20px;
     }
 
+    /* Move Audio to TOP on Mobile */
     .col-right {
         order: -1;
         width: 100%;
@@ -341,8 +379,10 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; }
         max-width: 100%;
     }
 
+    /* Fix player iframe on mobile using negative margins */
     .player-box iframe {
-        width: 100% !important;
+        width: calc(100% + 40px) !important;
+        margin: 0 -20px -20px -20px;
         height: 150px !important;
         border: none !important;
         display: block;
@@ -350,9 +390,21 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; }
 
     .player-box {
         width: 100%;
-        padding: 0 !important;
+        /* Removed padding: 0!important here so the window bar works */
         background: white;
         border: var(--border);
         box-shadow: var(--shadow);
     }
+}
+
+/* CLOSE BUTTON STYLING */
+.window-controls span:last-child {
+    color: #ff6b6b;
+    cursor: pointer;
+    font-weight: bold;
+    transition: all 0.2s;
+}
+.window-controls span:last-child:hover {
+    background: #ff6b6b;
+    color: white;
 }
