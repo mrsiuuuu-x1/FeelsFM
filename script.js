@@ -102,7 +102,7 @@ function stopCamera() {
 
 // --- Main AI Loop ---
 video.addEventListener('play', () => {
-    
+
     const wrapper = video.parentElement; 
     let canvas = document.getElementById('face-canvas');
 
@@ -330,7 +330,8 @@ function updateChart(data) {
                 padding: {
                     top: 10,
                     left: 10,
-                    right: 10
+                    right: 10,
+                    bottom: 10
                 }
             },
             scales: {

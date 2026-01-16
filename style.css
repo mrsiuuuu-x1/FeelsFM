@@ -1,4 +1,5 @@
-/* changing the UI to NEO-BRUTALISM theme */
+/* --- FEELS FM: NEO-BRUTALIST THEME --- */
+
 :root {
     --bg-color: #f4f4f0;
     --grid-color: #e0e0e0;
@@ -19,7 +20,7 @@ body {
     font-family: 'Courier New', Courier, monospace;
     display: flex;
     justify-content: center;
-    align-items: center;
+    align-items: flex-start;
     background-image: 
         linear-gradient(var(--grid-color) 1px, transparent 1px),
         linear-gradient(90deg,var(--grid-color) 1px, transparent 1px);
@@ -29,19 +30,23 @@ body {
 .container {
     text-align: center;
     width: 90%;
-    max-width: 1000px;
+    max-width: 1200px;
     position: relative;
+    padding-bottom: 50px;
 }
 
+/* --- HEADER SECTION --- */
 header {
+    width: 100%;           
+    max-width: 1000px;
+    margin: 0 auto;
     position: relative;
+    padding-top: 40px;
+    margin-bottom: 60px;
+    text-align: center;
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
-    padding-top: 20px;
-    margin-bottom: 60px;
-    width: 100%;
     z-index: 10;
 }
 
@@ -59,16 +64,49 @@ header h1 {
     transform: rotate(-2deg);
 }
 
+/* Header Buttons */
+#theme-btn, #logout-btn {
+    position: absolute;
+    top: 25px;
+    z-index: 100;
+    transition: all 0.3s ease;
+    margin-top: 0;
+}
+
+#theme-btn { left: 10px; }
+#logout-btn { right: 10px; }
+
+/* --- MAIN LAYOUT ENGINE --- */
 .workstation {
     display: flex;
     flex-wrap: wrap;
     justify-content: center;
     gap: 40px;
-    margin-top: 80px;
-    width: 90%;
-    max-width: 1200px;
+    margin-top: 20px;
+    width: 100%;
 }
 
+/* Left Column: Camera, Chart, History */
+.col-left {
+    flex: 2;
+    min-width: 300px;      
+    max-width: 800px;      
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+/* Right Column: Music Player */
+.col-right {
+    flex: 1;
+    min-width: 280px;
+    max-width: 400px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+/* --- COMPONENT BOXES --- */
 .camera-box, .chart-box, .player-box, #history-section {
     background: white;
     border: var(--border);
@@ -76,6 +114,8 @@ header h1 {
     padding: 20px;
     border-radius: 0;
     transition: transform 0.2s;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .camera-box:hover, .player-box:hover, .chart-box:hover, #history-section:hover {
@@ -86,15 +126,39 @@ header h1 {
 .chart-box {
     position: relative;
     height: 350px !important;
-    width: 100%;
-    background: white;
-    border: var(--border);
-    box-shadow: var(--shadow);
-    padding: 10px;
-    box-sizing: border-box;
     overflow: hidden;
 }
 
+.player-box {
+    padding: 0 !important;
+    overflow: hidden;
+}
+
+.camera-box {
+    position: relative;
+    overflow: hidden;
+    padding: 10px;
+}
+
+#video {
+    width: 100%;
+    height: auto;
+    display: block;
+    transform: scaleX(-1);
+}
+
+canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transform: scaleX(-1);
+    pointer-events: none;
+}
+
+/* --- BUTTON STYLES --- */
 button {
     font-family: inherit;
     font-weight: bold;
@@ -126,6 +190,7 @@ button:active {
     padding: 10px 15px;
 }
 
+/* Window Bars */
 .window-bar {
     background: var(--text);
     color: white;
@@ -136,38 +201,12 @@ button:active {
     font-size: 0.9rem;
     font-weight: bold;
     letter-spacing: 1px;
+    margin: -20px -20px 20px -20px;
 }
 
-.camera-box{
-    position: relative;
-    width: 100%;
-    overflow: hidden;
-}
-
-#video {
-    width: 100%;
-    height: auto;
-    display: block;
-    transform: scaleX(-1);
-}
-
-canvas {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transform: scaleX(-1);
-    pointer-events: none;
-}
-
+/* History Section Styles */
 #history-section {
-    background: white;
     position: relative;
-    width: 100%;
-    margin: 0;
-    box-sizing: border-box;
 }
 
 #history-section:after {
@@ -189,8 +228,9 @@ canvas {
     margin: 0;
     background: transparent !important;
     border-radius: 0 !important;
-    border-left: none !important;
     color: black !important;
+    display: flex;
+    justify-content: space-between;
 }
 
 #mood-list span {
@@ -198,37 +238,8 @@ canvas {
     font-family: 'Courier New', monospace;
 }
 
-.player-box {
-    padding: 0 !important;
-    overflow: hidden;
-    align-self: flex-start;
-}
 
-#video {
-    width: 100% !important;
-    height: auto !important;
-    max-width: 100%;
-}
-
-.col-right {
-    flex: 1;
-    min-width: 300px;
-    max-width: 400px;
-}
-
-.col-left {
-    display: flex;
-    flex-direction: column;
-    gap: 30px;
-    flex: 999;
-    min-width: 300px;
-}
-
-.workstation {
-    gap: 20px;
-}
-
-/* dark-mode theme*/
+/* --- DARK MODE THEME --- */
 body.dark-mode {
     --bg-color: #050505;
     --grid-color: #222;
@@ -241,6 +252,7 @@ body.dark-mode {
 body.dark-mode .window-bar {
     background: white;
     color: black;
+    border-bottom: 3px solid black;
 }
 
 body.dark-mode header h1 {
@@ -248,104 +260,49 @@ body.dark-mode header h1 {
     color: black;
 }
 
-body.dark-mode button {
+body.dark-mode .chart-box,
+body.dark-mode #history-section,
+body.dark-mode .camera-box,
+body.dark-mode .player-box {
+    background: white; 
     color: black;
+    border: 3px solid white;
+    box-shadow: 5px 5px 0px #333;
 }
 
+/* Invert hover states for dark mode */
 body.dark-mode .chart-box:hover,
-body.dark-mode #history-section:hover,
-body.dark-mode .camera-box:hover,
-body.dark-mode .player-box:hover {
-    background: white !important;
-    color: black !important;
-    border: 3px solid black !important;
+body.dark-mode .camera-box:hover {
     box-shadow: 7px 7px 0px white !important;
+    border-color: white !important;
 }
 
-body.dark-mode .window-bar {
-    background: black !important;
-    color: white !important;
-    border-bottom: 3px solid black;
-}
-
-body.dark-mode button {
-    box-shadow: 5px 5px 0px white !important;
-}
-
-body.dark-mode button {
-    box-shadow: 5px 5px 0px white !important;
-}
-body.dark-mode button:active {
-    box-shadow: 5px 5px 0px white !important;
-}
 body.dark-mode button {
     border: 3px solid black !important;
     box-shadow: 5px 5px 0px black !important;
     color: black !important;
 }
-body.dark-mode button:hover {
-    box-shadow: 7px 7px 0px black !important;
-    transform: translate(-2px, -2px);
-}
-body.dark-mode button:active {
-    box-shadow: 0px 0px 0px black !important;
-    transform: translate(5px, 5px);
-}
 
-body.dark-mode header button {
+/* Header Buttons in Dark Mode */
+body.dark-mode #theme-btn, 
+body.dark-mode #logout-btn {
     border: 3px solid white !important;
     box-shadow: 5px 5px 0px white !important;
     color: black !important;
-    background: #ff6b6b !important;
-}
-body.dark-mode #theme-btn {
-    background: white !important;
-}
-body.dark-mode header button:hover {
-    box-shadow: 7px 7px 0px white !important;
-    transform: translate(-2px,-2px);
-}
-body.dark-mode header butto:active {
-    box-shadow: 0px 0px 0px white !important;
-    transform: translate(5px,5px);
 }
 
-/* changing the position of the theme btn and the logout btn*/
-header {
-    width: 100%;           
-    max-width: 1000px;
-    margin: 0 auto;
-    
-    position: relative;
-    padding-top: 20px;
-    margin-bottom: 40px;
-    text-align: center;
-}
+body.dark-mode #theme-btn { background: white !important; }
+body.dark-mode #logout-btn { background: #ff6b6b !important; }
 
-#theme-btn, #logout-btn {
-    position: absolute;
-    top: 25px;
-    z-index: 100;
-    transition: all 0.3s ease;
-}
 
-#theme-btn {
-    left: 10px;
-}
-
-/* Right Button */
-#logout-btn {
-    right: 10px;
-}
-/* MOBILE OPTIMIZATION PATCH */
+/* --- MOBILE OPTIMIZATION PATCH (The Fix for Mobile) --- */
 @media screen and (max-width: 768px) {
     header {
         padding-top: 60px;
     }
 
     header h1 {
-        font-size: 1.5rem;
-        margin-bottom: 10px;
+        font-size: 1.8rem;
     }
 
     header p {
@@ -364,34 +321,24 @@ header {
     #logout-btn { right: 15px; }
 
     .workstation {
-        display: flex;
         flex-direction: column;
+        align-items: center;
         width: 100%;
-        margin-top: 10px;
+        margin-top: 20px;
         gap: 20px;
     }
 
     .col-right {
         order: -1;
         width: 100%;
-        margin-bottom: 10px;
+        max-width: 100%;
+        margin-bottom: 0;
     }
 
     .col-left {
         order: 2;
         width: 100%;
-    }
-
-    .camera-box {
-        width: 100%;
-        padding: 10px; 
-    }
-
-    #video {
-        width: 100% !important;
-        height: auto !important;
-        max-height: 350px;
-        object-fit: cover;
+        max-width: 100%;
     }
 
     .player-box iframe {
@@ -404,9 +351,8 @@ header {
     .player-box {
         width: 100%;
         padding: 0 !important;
-        overflow: hidden;
-        background: transparent !important;
-        border: none !important;
-        box-shadow: none !important;
+        background: white;
+        border: var(--border);
+        box-shadow: var(--shadow);
     }
 }
