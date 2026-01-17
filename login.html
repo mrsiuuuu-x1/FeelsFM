@@ -21,23 +21,20 @@
             left: 20px;
             margin: 0;
             z-index: 100;
-            
-            /* Default (Light Mode) Look */
             background: var(--primary);
             color: black;
             border: 3px solid black;
             box-shadow: 5px 5px 0px black;
         }
 
-        /* --- THE FIX: WHITE BUTTON + BLACK BORDER IN DARK MODE --- */
         body.dark-mode #login-theme-btn {
             background: white !important;
             color: black !important;
-            border: 3px solid black !important;      /* FORCE BLACK BORDER */
-            box-shadow: 5px 5px 0px white !important; /* White Shadow */
+            border: 3px solid black !important;
+            box-shadow: 5px 5px 0px white !important;
         }
 
-        /* 2. The Login Card */
+        /* The Login Card */
         .login-card {
             background: white;
             border: var(--border);
@@ -52,7 +49,7 @@
             align-items: center;
         }
 
-        /* 3. The Title */
+        /* The Title */
         .login-title {
             font-size: 3.5rem;
             font-weight: 900;
@@ -66,7 +63,7 @@
             margin-top: -10px;
         }
 
-        /* 4. Subtitle */
+        /* Subtitle */
         .login-subtitle {
             font-weight: bold;
             margin-bottom: 40px;
@@ -76,7 +73,7 @@
             color: black !important;
         }
 
-        /* 5. Google Button */
+        /* Google Button */
         #google-login-btn {
             width: 100%;
             background: var(--primary);
@@ -110,7 +107,16 @@
         </button>
 
         <p style="margin-top: 20px; font-size: 0.8rem; font-weight: bold; color: black;">
-            (Or <a href="dashboard.html" style="color: black; text-decoration: underline;">Continue as Guest</a>)
+            (Or <a href="#" id="guest-btn" style="color: black; text-decoration: underline;">Continue as Guest</a>)
+
+            <script>
+            // Handle Guest Click
+                document.getElementById('guest-btn').addEventListener('click', (e) => {
+                    e.preventDefault(); // Stop the link from jumping immediately
+                    localStorage.setItem('guestMode', 'true'); // Save the Ticket
+                    window.location.href = 'dashboard.html';   // NOW go to dashboard
+                });
+            </script>
         </p>
     </div>
 

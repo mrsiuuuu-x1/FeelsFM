@@ -1,11 +1,9 @@
-// --- CONFIGURATION ---
-// REPLACE THESE WITH YOUR ACTUAL SUPABASE KEYS FROM YOUR PROJECT
 const supabaseUrl = 'https://hfikhcjndnjujcttlgjw.supabase.co'; 
 const supabaseKey = 'sb_publishable_U15_tdSGE0RNV8TGiQNVVA_6SSephN7';
 
 const supabaseClient = supabase.createClient(supabaseUrl, supabaseKey);
 
-// --- 1. LOGIN LOGIC (For login.html) ---
+// --- LOGIN LOGIC ---
 const loginBtn = document.getElementById('google-login-btn');
 
 if (loginBtn) {
@@ -27,18 +25,19 @@ if (loginBtn) {
     });
 }
 
-// --- 2. LOGOUT LOGIC (For dashboard.html) ---
+// --- LOGOUT LOGIC ---
 const logoutBtn = document.getElementById('logout-btn');
 
 if (logoutBtn) {
     logoutBtn.addEventListener('click', async () => {
+        //Clear Guest Ticket
+        localStorage.removeItem('guestMode'); 
+
+        //Sign out of Supabase (just in case)
         const { error } = await supabaseClient.auth.signOut();
-        if (error) {
-            console.error("Logout Error:", error);
-        } else {
-            // Redirect to Login page after logout
-            window.location.href = 'login.html';
-        }
+        
+        //Go back to Login
+        window.location.href = 'login.html';
     });
 }
 
@@ -49,13 +48,29 @@ if (window.location.pathname.includes('dashboard.html')) {
 }
 
 async function checkSession() {
+    console.log("Checking session...");
+
+    //CHECK FOR GUEST TICKET 
+    const isGuest = localStorage.getItem('guestMode') === 'true';
+
+    if (isGuest) {
+        console.log("Guest Access Granted");
+        
+        // Update UI
+        const emailSpan = document.getElementById('user-email');
+        if (emailSpan) {
+            emailSpan.innerText = "Guest User";
+        }
+        
+        return;
+    }
+
     const { data: { session } } = await supabaseClient.auth.getSession();
     
     if (!session) {
-        // No user found? Go back to login!
+        console.warn("No Session & No Guest Ticket. Kicking out.");
         window.location.href = 'login.html';
     } else {
-        // User found? Update the UI
         const emailSpan = document.getElementById('user-email');
         if (emailSpan) {
             emailSpan.innerText = session.user.email;
