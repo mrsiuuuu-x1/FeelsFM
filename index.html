@@ -9,14 +9,17 @@
     <style>
         /* --- LANDING PAGE STYLES --- */
         body {
+            display: flex;
             align-items: center !important; 
+            justify-content: center;
             flex-direction: column;
             height: 100vh;
             overflow: hidden;
             text-align: center;
+            position: relative;
         }
 
-        /* 1. Theme Button (Top Left) */
+        /* Theme Button */
         #landing-theme-btn {
             position: absolute;
             top: 20px;
@@ -26,9 +29,10 @@
             color: black;
             border: 3px solid black;
             box-shadow: 5px 5px 0px black;
+            font-weight: bold;
         }
 
-        /* 2. Login Button (Top Right) */
+        /* Login Button */
         #nav-login-btn {
             position: absolute;
             top: 20px;
@@ -39,7 +43,7 @@
             border: 3px solid black;
             box-shadow: 5px 5px 0px black;
             padding: 10px 20px;
-            text-decoration: none; /* It's a link */
+            text-decoration: none;
             font-weight: bold;
             font-size: 1rem;
             transition: all 0.1s;
@@ -53,17 +57,15 @@
             box-shadow: 2px 2px 0px black;
         }
 
-        /* 3. Main Hero Container */
         .hero-container {
-            margin-top: 10vh; /* Push down slightly */
             display: flex;
             flex-direction: column;
             align-items: center;
             max-width: 800px;
             padding: 20px;
+            margin-top: -50px;
         }
 
-        /* 4. Giant Tilted Title */
         .hero-title {
             font-size: 5rem;
             font-weight: 900;
@@ -74,9 +76,9 @@
             border: 3px solid black;
             box-shadow: 8px 8px 0px rgba(0,0,0,0.2);
             margin-bottom: 20px;
+            max-width: 90vw;
         }
 
-        /* 5. Subtitle */
         .hero-subtitle {
             font-size: 1.5rem;
             font-weight: bold;
@@ -85,10 +87,10 @@
             padding: 10px 20px;
             box-shadow: 5px 5px 0px black;
             margin-bottom: 40px;
-            transform: rotate(1deg); /* Slight counter-tilt */
+            transform: rotate(1deg);
+            max-width: 90%;
         }
 
-        /* 6. Big CTA Button */
         .cta-btn {
             font-size: 1.5rem;
             padding: 20px 40px;
@@ -100,6 +102,7 @@
             font-weight: 900;
             text-transform: uppercase;
             transition: all 0.1s;
+            display: inline-block;
         }
         .cta-btn:hover {
             transform: translate(-4px, -4px);
@@ -110,6 +113,32 @@
             box-shadow: 4px 4px 0px black;
         }
 
+        /* --- MOBILE FIXES --- */
+        @media screen and (max-width: 600px) {
+            .hero-title {
+                font-size: 3rem;
+                padding: 10px 15px;
+                box-shadow: 5px 5px 0px rgba(0,0,0,0.2);
+            }
+            
+            .hero-subtitle {
+                font-size: 1.1rem;
+                padding: 8px 15px;
+            }
+
+            .cta-btn {
+                font-size: 1.1rem;
+                padding: 15px 20px;
+                width: 80%;
+            }
+
+            #nav-login-btn, #landing-theme-btn {
+                font-size: 0.8rem;
+                padding: 8px 12px;
+                top: 15px;
+            }
+        }
+
         /* --- DARK MODE OVERRIDES --- */
         body.dark-mode #landing-theme-btn,
         body.dark-mode #nav-login-btn {
@@ -118,22 +147,19 @@
             border-color: black !important;
             box-shadow: 5px 5px 0px white !important;
         }
-
         body.dark-mode .hero-title {
             background: white;
             color: black;
             box-shadow: 8px 8px 0px white;
         }
-        
         body.dark-mode .hero-subtitle {
             background: black;
             color: white;
             border-color: white;
             box-shadow: 5px 5px 0px white;
         }
-
         body.dark-mode .cta-btn {
-            background: var(--primary); /* Keep it green for pop */
+            background: var(--primary);
             box-shadow: 8px 8px 0px white;
             border-color: black;
         }
@@ -150,8 +176,8 @@
         
         <a href="login.html" class="cta-btn">Start Listening -></a>
         
-        <p style="margin-top: 40px; font-weight: bold; opacity: 0.6;">
-            [ AI POWERED ] • [ DEEVER SYNCED ] • [ MOOD TRACKING ]
+        <p style="margin-top: 40px; font-weight: bold; opacity: 0.6; font-size: 0.8rem;">
+            [ AI POWERED ] • [ MOOD TRACKING ]
         </p>
     </div>
 
