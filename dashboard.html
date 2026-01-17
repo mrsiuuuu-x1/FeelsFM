@@ -33,6 +33,10 @@
                     </div>
                     <div class="camera-wrapper">
                         <video id="video" width="640" height="480" autoplay muted></video>
+
+                        <div id="camera-placeholder" style="position: absolute; top:0; left:0; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#f0f0f0; z-index:5;">
+                            <span style="font-family:'Courier New'; font-weight:bold; color:#aaa;">[ CAMERA OFF ]</span>
+                        </div>
                     </div>
                     <div class="controls">
                         <button id="start-btn">START CAMERA</button>
@@ -66,7 +70,10 @@
                         <span>/// AUDIO_MODULE.wav</span>
                         <div class="window-controls"><span>[ _ ]</span><span>[ X ]</span></div>
                     </div>
-                <iframe id="music-player" title="Deezer Player" src="https://widget.deezer.com/widget/dark/playlist/3110429622?autoplay=true&radius=0" width="100%" height="300" frameborder="0" allowtransparency="true" allow="encrypted-media; clipboard-write; autoplay" style="border: none; display: block;"></iframe>
+                    <div id="music-placeholder" style="width: 100%; height: 150px; display: flex; align-items: center; justify-content: center; background: #f0f0f0; font-family: 'Courier New'; font-weight: bold; color: #aaa;">
+                        [ AWAITING DATA... ]
+                    </div>
+                <iframe id="music-player" title="deezer-widget" src="" width="100%" height="150" frameborder="0" allowtransparency="true" allow="encrypted-media; clipboard-write; autoplay" style="border: none; display: none;"></iframe>
                 </div>
 
             </div> 

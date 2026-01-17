@@ -8,7 +8,7 @@ let detectionInterval = null;
 // Variables for stability
 let lastEmotion = "";
 let emotionTimer = 0;
-const STABILITY_THRESHOLD = 10; 
+const STABILITY_THRESHOLD = 0.7; 
 
 let currentMoodPlaying = null;
 
@@ -19,6 +19,7 @@ function playMusic(mood) {
 
     const playerBox = document.querySelector('.player-box');
     const oldPlayer = document.getElementById('music-player');
+    const placeholder = document.getElementById('music-placeholder'); // <--- 1. FIND PLACEHOLDER
 
     const playlists = {
         'happy': '1479458365',
@@ -35,7 +36,7 @@ function playMusic(mood) {
     newPlayer.id = 'music-player';
     newPlayer.title = "Deezer Player";
     newPlayer.width = "100%";
-    newPlayer.height = "300"; 
+    newPlayer.height = "150"; // CHANGED TO 150 TO MATCH YOUR BOX
     newPlayer.frameBorder = "0";
     newPlayer.allowTransparency = "true";
     newPlayer.style.border = "none";
@@ -43,9 +44,15 @@ function playMusic(mood) {
     newPlayer.allow = "autoplay; encrypted-media; clipboard-write";
     newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true&radius=0`;
 
+    // --- LOGIC UPDATE ---
+    if (placeholder) {
+        placeholder.style.display = 'none'; // <--- 2. HIDE PLACEHOLDER
+    }
+
     if (oldPlayer) {
         oldPlayer.replaceWith(newPlayer);
     } else {
+        // If there was no player before (first run), we just append the new one
         playerBox.appendChild(newPlayer);
     }
 }
@@ -54,10 +61,21 @@ function playMusic(mood) {
 Promise.all([
     faceapi.nets.tinyFaceDetector.loadFromUri('./models'),
     faceapi.nets.faceExpressionNet.loadFromUri('./models')
-]).then(() => {
+]).then(async () => {
     startBtn.innerText = "Start Camera";
     startBtn.disabled = false;
     console.log("Models Loaded");
+
+    //warming up the AI
+    const dummyCanvas = document.createElement('canvas');
+    dummyCanvas.width = 1;
+    dummyCanvas.height = 1;
+    try {
+        await faceapi.detectAllFaces(dummyCanvas,new faceapi.TinyFaceDetectorOptions()).withFaceExpressions();
+        console.log("Ai warmed up and ready");
+    } catch (e) {
+        console.log("warmup skipped (minor)");
+    }
 });
 
 // --- Button Click Handler ---
@@ -85,6 +103,10 @@ function startVideo() {
         video.srcObject = stream;
         video.play(); 
         cameraOn = true;
+
+        // hiding placeholder
+        const placeholder = document.getElementById('camera-placeholder');
+        if (placeholder) placeholder.style.display = 'none';
     })
     .catch(err => console.error("Error accessing webcam:", err));
 }
@@ -158,7 +180,6 @@ video.addEventListener('play', () => {
 
         if (detections.length > 0) {
             faceapi.draw.drawDetections(canvas, resizedDetections);
-            faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
             const expressions = detections[0].expressions;
             const highestEmotion = Object.keys(expressions).reduce((a, b) =>

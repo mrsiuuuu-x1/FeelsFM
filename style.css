@@ -164,6 +164,14 @@ header h1 {
     width: 100%;
     height: auto;
 }
+.video-wrapper {
+    position: relative;
+    width: 100%;
+    height: auto;
+    overflow: hidden;
+    background: black;
+    min-height: 240px;
+}
 
 #video {
     width: 100%;
