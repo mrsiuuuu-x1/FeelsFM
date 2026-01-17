@@ -16,61 +16,62 @@ let currentMoodPlaying = null;
 function playMusic(mood) {
     if (!mood) return; 
 
-    console.log(`Switching Music to: ${mood}`);
+    // 1. DEFINE PLAYLISTS WITH NAMES
+    // We use objects {id: '...', name: '...'} so we can log the name later
+    const playlists = {
+        'happy': [
+            { id: '1479458365', name: 'Pop Hits' },
+            { id: '7534956142', name: 'Feel Good Indie' },
+            { id: '8821741782', name: '100 Happy Songs' },
+            { id: '5335352662', name: 'Good Vibes Only' }
+        ],
+        'sad': [
+            { id: '1911533742', name: 'Sad Hours' },
+            { id: '1353437215', name: 'Acoustic Ballads' },
+            { id: '1290315385', name: 'Broken Heart' }
+        ],
+        'angry': [
+            { id: '2098157264', name: 'Metal Essentials' },
+            { id: '10659124',   name: 'Heavy Metal' },
+            { id: '5878848462', name: 'Gym Phonk' }
+        ],
+        'surprised': [
+             { id: '1282495565', name: 'Viral Hits' }
+        ],
+        'fearful':   [
+             { id: '2328226062', name: 'Dark Ambient' }
+        ],
+        'disgusted': [
+             { id: '5243326682', name: 'Grime & Bass' }
+        ],
+        'neutral':   [
+            { id: '3110429622', name: 'Lofi Beats' },
+            { id: '1976454162', name: 'Chill Hits' },
+            { id: '7065984624', name: 'Study Mode' }
+        ]
+    };
 
+    // 2. GET POOL
+    let pool = playlists[mood] || playlists['neutral'];
+
+    // 3. SMART FILTER (Avoid Repeats)
+    // Note: We check .id now because our items are objects
+    let candidates = pool.filter(item => item.id !== lastPlayedPlaylistId);
+    if (candidates.length === 0) candidates = pool;
+
+    // 4. PICK RANDOM
+    const selection = candidates[Math.floor(Math.random() * candidates.length)];
+    
+    // Save for next time
+    lastPlayedPlaylistId = selection.id; 
+
+    console.log(`Playing: ${selection.name} (${selection.id})`);
+
+    // 6. UPDATE PLAYER UI
     const playerBox = document.querySelector('.player-box');
     const oldPlayer = document.getElementById('music-player');
     const placeholder = document.getElementById('music-placeholder');
 
-    // DEFINE PLAYLIST POOLS
-    const playlists = {
-        'happy': [
-            '1479458365',
-            '7534956142',
-            '8821741782',
-            '816474431',
-            '5335352662'
-        ],
-        'sad': [
-            '1911533742', 
-            '1353437215', 
-            '1290315385'
-        ],
-        'angry': [
-            '2098157264', 
-            '10659124',   
-            '5878848462'
-        ],
-        'surprised': ['1282495565', '3110429622'],
-        'fearful':   ['2328226062', '1353437215'],
-        'disgusted': ['5243326682'],
-        'neutral':   [
-            '3110429622', 
-            '1976454162', 
-            '1925105902', 
-            '7065984624', 
-            '1904124402'
-        ]
-    };
-
-    // GET THE POOL
-    let pool = playlists[mood] || playlists['neutral'];
-
-    // Remove the last played ID from the options
-    let candidates = pool.filter(id => id !== lastPlayedPlaylistId);
-
-    // the pool only has 1 playlist, we have to play it again.
-    if (candidates.length === 0) {
-        candidates = pool;
-    }
-
-    //PICK RANDOM FROM THE "FRESH" LIST
-    const randomPlaylistId = candidates[Math.floor(Math.random() * candidates.length)];
-
-    // REMEMBER THIS ID FOR NEXT TIME
-    lastPlayedPlaylistId = randomPlaylistId;
-
-    // CREATE PLAYER
     const newPlayer = document.createElement('iframe');
     newPlayer.id = 'music-player';
     newPlayer.title = "Deezer Player";
@@ -82,17 +83,12 @@ function playMusic(mood) {
     newPlayer.style.display = "block";
     newPlayer.allow = "autoplay; encrypted-media; clipboard-write";
     
-    newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${randomPlaylistId}?autoplay=true&radius=0`;
+    newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${selection.id}?autoplay=true&radius=0`;
 
-    if (placeholder) {
-        placeholder.style.display = 'none';
-    }
-
-    if (oldPlayer) {
-        oldPlayer.replaceWith(newPlayer);
-    } else {
-        playerBox.appendChild(newPlayer);
-    }
+    if (placeholder) placeholder.style.display = 'none';
+    if (oldPlayer) oldPlayer.replaceWith(newPlayer);
+    else playerBox.appendChild(newPlayer);
+    return selection.name;
 }
 
 // --- Face API Models ---
@@ -164,10 +160,10 @@ function stopCamera() {
 
 // --- Main AI Loop ---
 video.addEventListener('play', () => {
-    // 1. Clean up old loops
+    // Clean up old loops
     if (detectionInterval) clearInterval(detectionInterval);
 
-    // 2. THE FIX: Use 'parentElement' to find the wrapper automatically
+    // THE FIX: Use 'parentElement' to find the wrapper automatically
     const wrapper = video.parentElement; 
     let canvas = document.getElementById('face-canvas');
 
@@ -179,15 +175,12 @@ video.addEventListener('play', () => {
         canvas.style.left = "0";
         canvas.style.width = "100%";
         canvas.style.height = "100%";
-        // This is the line that was breaking. Now wrapper is guaranteed to exist.
         wrapper.append(canvas);
     }
 
-    // 3. Start Loop
     detectionInterval = setInterval(async () => {
         if (!isScanning) return; 
 
-        // --- SIZE CHECK ---
         if (video.clientWidth === 0 || video.clientHeight === 0) {
             return;
         }
@@ -197,7 +190,6 @@ video.addEventListener('play', () => {
             height: video.clientHeight 
         };
 
-        // Resize canvas if video size changes
         if (canvas.width !== displaySize.width || canvas.height !== displaySize.height) {
             canvas.width = displaySize.width;
             canvas.height = displaySize.height;
@@ -235,12 +227,9 @@ video.addEventListener('play', () => {
                 const currentEmotion = highestEmotion;
                 emotionText.innerText = `MOOD: ${currentEmotion.toUpperCase()}`;
                 
-                playMusic(currentEmotion);
-
+                const specificSongName = playMusic(currentEmotion); 
                 const intensity = expressions[highestEmotion];
-                const safeSongName = `${currentEmotion.charAt(0).toUpperCase() + currentEmotion.slice(1)} Mix`;
-
-                saveMoodToDatabase(currentEmotion, intensity, safeSongName);
+                saveMoodToDatabase(currentEmotion, intensity, specificSongName);
             
                 isScanning = false;
                 startBtn.innerText = "Scan Mood Again!";
