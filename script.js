@@ -4,6 +4,7 @@ const emotionText = document.getElementById('emotion');
 let cameraOn = false;
 let isScanning = false;
 let detectionInterval = null; 
+let lastPlayedPlaylistId = null;
 
 // Variables for stability
 let lastEmotion = "";
@@ -13,46 +14,83 @@ const STABILITY_THRESHOLD = 0.7;
 let currentMoodPlaying = null;
 
 function playMusic(mood) {
-    if (!mood || mood === currentMoodPlaying) return;
-    currentMoodPlaying = mood;
+    if (!mood) return; 
+
     console.log(`Switching Music to: ${mood}`);
 
     const playerBox = document.querySelector('.player-box');
     const oldPlayer = document.getElementById('music-player');
-    const placeholder = document.getElementById('music-placeholder'); // <--- 1. FIND PLACEHOLDER
+    const placeholder = document.getElementById('music-placeholder');
 
+    // DEFINE PLAYLIST POOLS
     const playlists = {
-        'happy': '1479458365',
-        'sad': '1911533742',
-        'angry': '2098157264',
-        'surprised': '1282495565',
-        'fearful': '2328226062',
-        'disgusted': '5243326682',
-        'neutral':'3110429622'
-    }
-    const playlistId = playlists[mood] || playlists['neutral'];
+        'happy': [
+            '1479458365',
+            '7534956142',
+            '8821741782',
+            '816474431',
+            '5335352662'
+        ],
+        'sad': [
+            '1911533742', 
+            '1353437215', 
+            '1290315385'
+        ],
+        'angry': [
+            '2098157264', 
+            '10659124',   
+            '5878848462'
+        ],
+        'surprised': ['1282495565', '3110429622'],
+        'fearful':   ['2328226062', '1353437215'],
+        'disgusted': ['5243326682'],
+        'neutral':   [
+            '3110429622', 
+            '1976454162', 
+            '1925105902', 
+            '7065984624', 
+            '1904124402'
+        ]
+    };
 
+    // GET THE POOL
+    let pool = playlists[mood] || playlists['neutral'];
+
+    // Remove the last played ID from the options
+    let candidates = pool.filter(id => id !== lastPlayedPlaylistId);
+
+    // the pool only has 1 playlist, we have to play it again.
+    if (candidates.length === 0) {
+        candidates = pool;
+    }
+
+    //PICK RANDOM FROM THE "FRESH" LIST
+    const randomPlaylistId = candidates[Math.floor(Math.random() * candidates.length)];
+
+    // REMEMBER THIS ID FOR NEXT TIME
+    lastPlayedPlaylistId = randomPlaylistId;
+
+    // CREATE PLAYER
     const newPlayer = document.createElement('iframe');
     newPlayer.id = 'music-player';
     newPlayer.title = "Deezer Player";
     newPlayer.width = "100%";
-    newPlayer.height = "150"; // CHANGED TO 150 TO MATCH YOUR BOX
+    newPlayer.height = "150"; 
     newPlayer.frameBorder = "0";
     newPlayer.allowTransparency = "true";
     newPlayer.style.border = "none";
     newPlayer.style.display = "block";
     newPlayer.allow = "autoplay; encrypted-media; clipboard-write";
-    newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${playlistId}?autoplay=true&radius=0`;
+    
+    newPlayer.src = `https://widget.deezer.com/widget/dark/playlist/${randomPlaylistId}?autoplay=true&radius=0`;
 
-    // --- LOGIC UPDATE ---
     if (placeholder) {
-        placeholder.style.display = 'none'; // <--- 2. HIDE PLACEHOLDER
+        placeholder.style.display = 'none';
     }
 
     if (oldPlayer) {
         oldPlayer.replaceWith(newPlayer);
     } else {
-        // If there was no player before (first run), we just append the new one
         playerBox.appendChild(newPlayer);
     }
 }
