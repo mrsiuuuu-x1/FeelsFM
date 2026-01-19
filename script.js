@@ -421,3 +421,69 @@ themeBtn.addEventListener('click', () => {
     document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', document.body.classList.contains('dark-mode') ? 'dark' : 'light');
 });
+
+// RECIEPT PRINTER LOGIC
+document.addEventListener('DOMContentLoaded', () => {
+    const downloadBtn = document.getElementById('download-btn');
+    if (!downloadBtn) return;
+
+    downloadBtn.addEventListener('click', () => {
+        if (typeof html2canvas === 'undefined') {
+            alert("Error: html2canvas library is not loaded.");
+            return;
+        }
+
+        const now = new Date();
+        const historyList = document.getElementById('mood-list');
+        
+        let finalMood = document.getElementById('emotion').innerText.replace('MOOD: ', '').trim();
+        let currentSong = "NO AUDIO";
+
+        if (finalMood.includes('WAITING') || finalMood.includes('SCANNING') || finalMood === "") {
+            if (historyList && historyList.firstElementChild) {
+                const moodSpan = historyList.firstElementChild.querySelector('span'); 
+                if (moodSpan) {
+                    finalMood = moodSpan.innerText.replace(/[^\w\s]/gi, '').trim(); 
+                }
+            }
+        }
+        if (finalMood.includes('WAITING') || finalMood === "") finalMood = "MYSTERY";
+
+        if (historyList && historyList.firstElementChild) {
+            const allText = historyList.firstElementChild.innerText;
+            const parts = allText.split('\n');
+            if (parts.length >= 2) {
+                currentSong = parts[1].trim(); 
+            } else {
+                 currentSong = parts[0].trim();
+            }
+        }
+
+        const dateSpan = document.getElementById('receipt-date');
+        const timeSpan = document.getElementById('receipt-time');
+        const moodSpan = document.getElementById('receipt-mood');
+        const songSpan = document.getElementById('receipt-song');
+
+        if(dateSpan) dateSpan.innerText = now.toLocaleDateString();
+        if(timeSpan) timeSpan.innerText = now.toLocaleTimeString();
+        if(moodSpan) moodSpan.innerText = `MOOD: ${finalMood.toUpperCase()}`;
+        if(songSpan) songSpan.innerText = currentSong.substring(0, 25);
+
+        const receiptContainer = document.getElementById('receipt-container');
+        receiptContainer.style.top = "0";
+        receiptContainer.style.left = "0";
+        receiptContainer.style.zIndex = "-999"; 
+
+        html2canvas(receiptContainer, { scale: 2 }).then(canvas => {
+            const link = document.createElement('a');
+            link.download = `FEELSFM_RECEIPT_${now.getTime()}.png`;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+
+            receiptContainer.style.top = "-9999px";
+            receiptContainer.style.left = "-9999px";
+        }).catch(err => {
+            console.error(err);
+        });
+    });
+});
