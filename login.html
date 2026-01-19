@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FeelsFM - Login</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='black'/><text x='50' y='75' font-family='Courier New' font-weight='bold' font-size='80' fill='white' text-anchor='middle'>F</text></svg>">
     <link rel="stylesheet" href="style.css">
     
     <style>
@@ -112,9 +113,9 @@
             <script>
             // Handle Guest Click
                 document.getElementById('guest-btn').addEventListener('click', (e) => {
-                    e.preventDefault(); // Stop the link from jumping immediately
-                    localStorage.setItem('guestMode', 'true'); // Save the Ticket
-                    window.location.href = 'dashboard.html';   // NOW go to dashboard
+                    e.preventDefault();
+                    localStorage.setItem('guestMode', 'true');
+                    window.location.href = 'dashboard.html';
                 });
             </script>
         </p>
