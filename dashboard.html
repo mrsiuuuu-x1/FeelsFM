@@ -80,6 +80,116 @@
                 <div style="margin-top: 15px; text-align: center; padding-bottom: 15px;">
                     <button id="download-btn" style="background: white; border: 2px solid black; box-shadow: 4px 4px 0px 0px rgba(0, 0, 0, 1); font-family: 'Courier New', monospace; font-weight: bold; font-size: 14px; padding: 10px 20px; cursor: pointer; transition: transform 0.1s;">[ PRINT BUTTON ]</button>
                 </div>
+                
+                <div class="art-window">
+                    <div class="window-bar" style="
+                        background: var(--text-color); 
+                        color: var(--bg-color); 
+                        display: flex; 
+                        justify-content: space-between; 
+                        padding: 5px; /* Standard spacing */
+                        font-family: 'Courier New'; 
+                        font-weight: bold;">
+                        <span>/// BASQUIAT_RENDER.jpg</span>
+                        <div class="window-controls"><span>[ X ]</span></div>
+                    </div>
+
+                    <div style="padding: 0; border-bottom: 2px solid var(--text-color);">
+                        <img src="art.jpg" alt="Basquiat" style="width: 100%; height: auto; display: block;">
+                    </div>
+
+                    <div style="padding: 10px; font-family: 'Courier New'; font-size: 0.75rem; font-weight: bold; background: var(--bg-color); color: var(--text-color);">
+                        <p style="margin: 0;">ARTIST: JEAN-MICHEL BASQUIAT</p>
+                        <p style="margin: 0; opacity: 0.7;">STATUS: EXHIBIT_A [LOADED]</p>
+                    </div>
+                </div>
+
+                <div class="system-terminal-box laptop-only">
+                    <div class="window-bar" style="background: var(--text-color); color: var(--bg-color);">
+                        <span>/// SYSTEM_STATUS.log</span>
+                        <div class="window-controls"><span>[ _ ]</span><span>[ X ]</span></div>
+                    </div>
+                    <div class="terminal-content">
+                        <p>> INITIALIZING AI CORE...</p>
+                        <p>> LOADED: face-api.js (v0.22.2)</p>
+                        <p>> CONNECTED: Supabase DB [OK]</p>
+                        <p>> AUDIO ENGINE: DEEZER WIDGET [READY]</p>
+                        <p style="color: var(--primary-color);">> WAITING FOR USER INPUT_</p>
+                        <p class="blinking-cursor">█</p>
+
+                        <div style="margin-top: 15px; opacity: 0.6; font-size: 0.7rem;">
+                            0x4F 0x4B 0x20 0x4C 0x4F 0x41 0x44<br>
+                            0x45 0x44 0x2E 0x2E 0x2E 0x20 0x5B<br>
+                            0x46 0x45 0x45 0x4C 0x53 0x46 0x4D 0x5D
+                        </div>
+                    </div>
+                </div>
+
+                <div class="time-module" style="
+                    margin-top: 25px; 
+                    border: var(--border); 
+                    box-shadow: var(--shadow); 
+                    background: var(--bg-color);
+                    display: flex;
+                    flex-direction: column;
+                ">
+                    <div class="window-bar" style="
+                        background: var(--text); 
+                        color: var(--bg-color); 
+                        padding: 8px 12px; 
+                        font-family: 'Courier New'; 
+                        font-weight: bold; 
+                        display: flex; 
+                        justify-content: space-between;
+                    ">
+                        <span>/// LOCAL_TIME.exe</span>
+                        <span>[ ◉ ]</span>
+                    </div>
+
+                    <div style="padding: 20px; text-align: center;">
+                        <h2 id="digital-clock" style="
+                            font-size: 2.5rem; 
+                            margin: 0; 
+                            font-weight: 900; 
+                            letter-spacing: 2px;
+                            ">00:00:00</h2>
+        
+                        <p id="date-display" style="
+                            margin-top: 5px; 
+                            font-size: 0.9rem; 
+                            opacity: 0.7; 
+                            font-weight: bold; 
+                            text-transform: uppercase;
+                        ">LOADING DATA...</p>
+                    </div>
+                </div>
+
+                <div class="graffiti-window">
+                    <div class="window-bar">
+                        <span>/// STREET_ART.jpg</span>
+                        <div class="window-controls"><span>[ X ]</span></div>
+                    </div>
+    
+                    <div style="padding: 0; border-bottom: 2px solid var(--text);">
+                        <img src="graffiti.jpg" style="
+                            width: 100%; 
+                            height: auto; 
+                            display: block; 
+                            filter: contrast(1.1) saturate(1.2); /* Makes colors pop */
+                        ">
+                    </div>
+
+                    <div style="
+                        padding: 10px; 
+                        font-family: 'Courier New'; 
+                        font-size: 0.7rem; 
+                        font-weight: bold; 
+                        background: var(--bg-color); 
+                        color: var(--text);
+                    ">
+                        <p style="margin: 0;">SOURCE: CITY_WALL_04</p>
+                    </div>
+                </div>
 
             </div> 
     </div>
@@ -123,7 +233,7 @@
             </div>
             <div style="margin-top: 20px; font-size: 10px; opacity: 0.7;">
                 <p>* THANK YOU FOR SHOPPING *</p>
-                <p>www.feelsfm.vercel.app</p>
+                <p>www.feels-fm.vercel.app</p>
                 <div style="margin-top:10px; font-size: 20px;">||| || ||| | |||</div>
             </div>
         </div>

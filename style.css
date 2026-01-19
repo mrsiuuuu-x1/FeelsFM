@@ -6,14 +6,20 @@
     --primary: #a3ffac;
     --accent: #ff90e8;
     --text: black;
-    --border: 3px solid black;
-    --shadow: 5px 5px 0px black;
+    --border: 2px solid black;
+    --shadow: 4px 4px 0px black;
+    box-sizing: border-box;
+}
+
+*, *::before, *::after {
+    box-sizing: inherit;
 }
 
 body {
     margin: 0;
     padding: 0;
-    width: 100vw;
+    width: 100%;
+    overflow-x: hidden;
     min-height: 100vh;
     background-color: var(--bg-color);
     color: var(--text);
@@ -307,18 +313,34 @@ body.dark-mode header h1 {
 body.dark-mode .chart-box,
 body.dark-mode #history-section,
 body.dark-mode .camera-box,
-body.dark-mode .player-box {
+body.dark-mode .player-box,
+body.dark-mode .art-window,
+body.dark-mode .system-terminal-box,
+body.dark-mode .time-module,
+body.dark-mode .graffiti-box {
     background: white; 
     color: black;
     border: 3px solid white;
     box-shadow: 5px 5px 0px #333;
+}
+body.dark-mode .graffiti-box .window-bar {
+    background: black !important;
+    color: white !important;
+}
+body.dark-mode .art-window .window-bar,
+body.dark-mode .system-terminal-box .window-bar {
+    background: black !important;
+    color: white !important;
+    border-bottom: 3px solid black !important;
 }
 
 /* Invert hover states for dark mode */
 body.dark-mode .chart-box:hover,
 body.dark-mode .camera-box:hover,
 body.dark-mode .player-box:hover,
-body.dark-mode #history-section:hover {
+body.dark-mode #history-section:hover,
+body.dark-mode .art-window:hover,
+body.dark-mode .system-terminal-box:hover {
     box-shadow: 7px 7px 0px white !important;
     border-color: black !important;
 }
@@ -374,7 +396,6 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #0505
         gap: 20px;
     }
 
-    /* Move Audio to TOP on Mobile */
     .col-right {
         order: -1;
         width: 100%;
@@ -388,7 +409,6 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #0505
         max-width: 100%;
     }
 
-    /* Fix player iframe on mobile using negative margins */
     .player-box iframe {
         width: calc(100% + 40px) !important;
         margin: 0 -20px -20px -20px;
@@ -399,7 +419,6 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #0505
 
     .player-box {
         width: 100%;
-        /* Removed padding: 0!important here so the window bar works */
         background: white;
         border: var(--border);
         box-shadow: var(--shadow);
@@ -417,4 +436,155 @@ body.dark-mode #logout-btn { background: #ff6b6b !important; border-color: #0505
 .window-controls span:last-child:hover {
     background: #ff6b6b;
     color: white;
+}
+
+/* --- EXTRA MODULES (Art & Terminal) --- */
+.art-window, .system-terminal-box, .time-module {
+
+    border: var(--border);
+    box-shadow: var(--shadow);
+    background: white;
+    color: black;
+    
+    transition: all 0.2s ease-in-out;
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+}
+
+/* Hover Effect - Matches Global Button Hover */
+.art-window:hover, .system-terminal-box:hover, .time-module:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0px black;
+}
+
+/* Image Border */
+.art-window img {
+    border-bottom: var(--border);
+    display: block;
+}
+
+/* Window Headers */
+.art-window .window-bar, .system-terminal-box .window-bar {
+    background: var(--text) !important;
+    color: var(--bg-color) !important;
+    padding: 8px 12px;
+    margin: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.terminal-content {
+    padding: 15px;
+    font-family: 'Courier New', monospace;
+    font-size: 0.85rem;
+    color: inherit;
+    flex: 1;
+    overflow: hidden;
+    text-align: left;
+}
+
+.terminal-content p {
+    margin: 0 0 5px 0;
+}
+
+/* The Blinking Cursor Animation */
+.blinking-cursor {
+    display: inline-block;
+    color: var(--primary);
+    animation: blink 1s step-end infinite;
+}
+
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.laptop-only { display: none; }
+@media (min-width: 1024px) {
+    .laptop-only { display: flex; }
+}
+
+.time-module {
+    border: var(--border);
+    box-shadow: var(--shadow);
+    background: white;
+    margin-top: 25px;
+    box-sizing: border-box;
+}
+
+.time-module .window-bar {
+    background: black !important;
+    color: white !important;
+    padding: 8px 12px;
+    margin: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+body.dark-mode .time-module .window-bar {
+    background: black !important;
+    color: white !important;
+}
+
+body.dark-mode .time-module {
+    background: white !important;
+    color: black !important;
+
+    border: 3px solid white !important;
+    box-shadow: 5px 5px 0px #333 !important;
+}
+
+body.dark-mode #digital-clock,
+body.dark-mode #date-display {
+    color: black !important;
+}
+
+body.dark-mode .time-module .window-bar {
+    background: black !important;
+    color: white !important;
+    border-bottom: none !important;
+}
+
+/* --- GRAFFITI IMAGE WINDOW --- */
+.graffiti-window {
+    /* Use standard theme variables */
+    border: var(--border);
+    box-shadow: var(--shadow);
+    background: white; 
+    margin-top: 25px;
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    transition: all 0.2s ease-in-out;
+}
+
+/* Hover Effect */
+.graffiti-window:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 7px 7px 0px black;
+}
+
+/* Header Styling - Forces Black Header */
+.graffiti-window .window-bar {
+    background: black !important;
+    color: white !important;
+    padding: 8px 12px;
+    margin: 0 !important;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+/* --- DARK MODE RULES --- */
+body.dark-mode .graffiti-window {
+    background: white !important;
+    color: black !important;
+    border: 3px solid white !important;
+    box-shadow: 5px 5px 0px #333 !important;
+}
+
+body.dark-mode .graffiti-window .window-bar {
+    background: black !important;
+    color: white !important;
 }
