@@ -84,6 +84,7 @@
 │   └── basquiat_render.jpg
 │
 └── README.md           # System Documentation
+```
 
 ## CONTROLS
 
