@@ -13,7 +13,7 @@
 
 | **Light Mode (Day Operations)** | **Dark Mode (Night Operations)** |
 |:---:|:---:|
-| *(Add your Light Mode Screenshot here)* | *(Add your Dark Mode Screenshot here)* |
+| *![Light Mode](./assets/light-mode.png)* | *![Dark Mode](./assets/dark-mode.png)* |
 
 ---
 
