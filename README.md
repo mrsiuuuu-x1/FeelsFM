@@ -52,7 +52,7 @@
 
 1.  **Clone the Repository:**
     ```bash
-    git clone [https://github.com/your-username/feels-fm.git](https://github.com/your-username/feels-fm.git)
+    git clone [https://github.com/mrsiuuuu-x1/feels-fm.git](https://github.com/mrsiuuuu-x1/feels-fm.git)
     ```
 
 2.  **Navigate to Directory:**
